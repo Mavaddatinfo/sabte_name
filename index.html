@@ -717,14 +717,10 @@
       renderAdminDates();
     }
 
-    async function loadAdminRequests(filter) {
-      const data = await apiGet();
-      requests = data.requests || [];
-      sessions = data.sessions || sessions;
-
+    function renderAdminRequestsList(filter) {
       const box = document.getElementById('adminRequests');
       let list = filter === 'all' ? requests : requests.filter(r => r.status === filter);
-      list = list.reverse();
+      list = list.slice().reverse();
 
       if (list.length === 0) {
         box.innerHTML = '<div class="empty"><div class="icon">📭</div><p>درخواستی یافت نشد.</p></div>';
@@ -732,7 +728,7 @@
       }
 
       box.innerHTML = list.map(r => {
-        const datesHtml = (r.selectedDates || []).map(d => `<li>${d.day} ${d.date} — ${d.occasion === 'ندارد' ? '—' : d.occasion}</li>`).join('');
+        const datesHtml = (r.selectedDates || []).map(d => `<li>${d.day || ''} ${d.date || ''} — ${(!d.occasion || d.occasion === 'ندارد') ? '—' : d.occasion}</li>`).join('');
         let statusClass = 'badge-pending';
         if (r.status === 'تأیید شده') statusClass = 'badge-confirmed';
         if (r.status === 'رد شده') statusClass = 'badge-full';
@@ -762,20 +758,33 @@
       }).join('');
     }
 
+    async function loadAdminRequests(filter) {
+      try {
+        const data = await apiGet();
+        if (data && data.success) {
+          requests = data.requests || [];
+          sessions = data.sessions || sessions;
+        }
+        renderAdminRequestsList(filter || 'all');
+      } catch (e) {
+        console.error(e);
+        showToast('خطا در بارگذاری درخواست‌ها');
+      }
+    }
+
     async function refreshAdminLists() {
       const box = document.getElementById('adminRequests');
       if (box) {
         box.innerHTML = '<div class="loading">در حال به‌روزرسانی لیست...</div>';
       }
-      // کمی صبر تا گوگل شیت تغییرات را ثبت کند
-      await new Promise(r => setTimeout(r, 700));
+      await new Promise(r => setTimeout(r, 300));
       try {
         const data = await apiGet();
         if (data && data.success) {
           sessions = data.sessions || sessions;
           requests = data.requests || [];
         }
-        await loadAdminRequests('all');
+        renderAdminRequestsList('all');
         renderAdminDates();
         renderDates();
       } catch (e) {
