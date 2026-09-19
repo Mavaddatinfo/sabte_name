@@ -2,39 +2,30 @@
 <html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 
-  <title>سامانه ثبت‌نام بانیان جلسات هیئت مودّت‌ الحسین (ع)</title>
+  <title>سامانه ثبت نام بانیان جلسات هیئت مودّت‌ الحسین (ع)</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap"
     rel="stylesheet"
   >
 
   <style>
     :root {
-      --green-dark: #075b3a;
-      --green: #16804f;
-      --green-light: #e8f5ee;
-
+      --green-dark: #0d5c3a;
+      --green: #1a7a4c;
+      --green-light: #e8f5e9;
       --gold: #c9a227;
-      --gold-light: #fbf5df;
-
+      --gold-light: #f8f1d4;
       --white: #ffffff;
-      --gray-50: #fafafa;
-      --gray-100: #f5f6f7;
-      --gray-200: #e5e7eb;
-      --gray-500: #6b7280;
-      --gray-700: #374151;
-      --gray-900: #1f2937;
-
+      --gray-100: #f8f9fa;
+      --gray-200: #e9ecef;
+      --gray-600: #6c757d;
+      --gray-800: #343a40;
       --red: #c0392b;
-      --blue: #2563eb;
-
-      --shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
-      --radius: 16px;
+      --shadow: 0 4px 20px rgba(0,0,0,0.08);
+      --radius: 12px;
     }
 
     * {
@@ -43,169 +34,134 @@
       box-sizing: border-box;
     }
 
-    html {
-      scroll-behavior: smooth;
-    }
-
     body {
       font-family: "Vazirmatn", Tahoma, sans-serif;
-      background:
-        linear-gradient(
-          160deg,
-          #f1f8f4 0%,
-          #edf4f0 50%,
-          #f8faf9 100%
-        );
-      color: var(--gray-900);
+      background: linear-gradient(160deg, #f0f7f4 0%, #e8f0ec 100%);
+      color: var(--gray-800);
       min-height: 100vh;
-      line-height: 1.8;
+      line-height: 1.7;
     }
 
     button,
     input,
-    select,
-    textarea {
+    textarea,
+    select {
       font-family: inherit;
     }
 
-    /* ================= HEADER ================= */
-
-    .header {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 30px 20px 24px;
-      text-align: center;
-      color: white;
-
-      background:
-        linear-gradient(
-          135deg,
-          var(--green-dark),
-          var(--green)
-        );
-
-      border-radius: 0 0 28px 28px;
-      box-shadow: var(--shadow);
-    }
-
-    .logo {
-      width: 100px;
-      height: 100px;
-      object-fit: contain;
-      display: block;
-      margin: 0 auto 14px;
-
-      background: white;
-      border-radius: 50%;
-      padding: 8px;
-
-      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.18);
-    }
-
-    .header h1 {
-      font-size: 1.45rem;
-      font-weight: 800;
-      line-height: 1.7;
-      margin-bottom: 6px;
-    }
-
-    .header .subtitle {
-      color: var(--gold-light);
-      font-size: 1.05rem;
-      font-weight: 600;
-    }
-
-    .header .description {
-      max-width: 550px;
-      margin: 12px auto 0;
-      font-size: 0.92rem;
-      opacity: 0.92;
-    }
-
-    /* ================= ADMIN BUTTON ================= */
-
-    .admin-button {
-      position: fixed;
-      top: 12px;
-      left: 12px;
-
-      width: 42px;
-      height: 42px;
-
-      border: none;
-      border-radius: 50%;
-
-      background: rgba(255,255,255,0.95);
-
-      box-shadow: 0 3px 15px rgba(0,0,0,0.15);
-
-      cursor: pointer;
-      font-size: 1.2rem;
-
-      z-index: 1000;
-
-      transition: 0.2s;
-    }
-
-    .admin-button:hover {
-      transform: scale(1.08);
-    }
-
-    /* ================= CONTAINER ================= */
-
     .container {
-      width: 100%;
       max-width: 720px;
       margin: 0 auto;
       padding: 16px;
     }
 
-    /* ================= NAV ================= */
+    /* ================= HEADER ================= */
 
-    .nav {
-      display: flex;
-      gap: 8px;
-
-      background: white;
-      padding: 8px;
-
-      border-radius: var(--radius);
-
+    .header {
+      text-align: center;
+      padding: 28px 16px 22px;
+      background: linear-gradient(
+        135deg,
+        var(--green-dark),
+        var(--green)
+      );
+      color: white;
+      border-radius: 0 0 24px 24px;
       box-shadow: var(--shadow);
-
       margin-bottom: 20px;
-
-      overflow-x: auto;
     }
 
-    .nav button {
-      flex: 1;
-      min-width: 130px;
+    .header .logo {
+      width: 92px;
+      height: 92px;
+      object-fit: contain;
+      border-radius: 50%;
+      background: white;
+      padding: 7px;
+      margin-bottom: 10px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+    }
 
-      border: none;
-      background: transparent;
+    .header h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
 
-      padding: 11px 14px;
-
-      border-radius: 10px;
-
-      font-size: 0.9rem;
+    .header .subtitle {
+      font-size: 1.05rem;
+      color: var(--gold-light);
       font-weight: 600;
+    }
 
-      color: var(--gray-500);
+    .header .desc {
+      margin-top: 12px;
+      font-size: 0.92rem;
+      opacity: 0.92;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
 
+    /* ================= ADMIN BUTTON ================= */
+
+    .admin-gear {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      z-index: 100;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.94);
+      border: none;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      font-size: 1.25rem;
       cursor: pointer;
-      white-space: nowrap;
-
+      display: flex;
+      align-items: center;
+      justify-content: center;
       transition: 0.2s;
     }
 
-    .nav button.active {
+    .admin-gear:hover {
+      transform: scale(1.08);
+    }
+
+    /* ================= NAV ================= */
+
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      background: white;
+      padding: 8px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow-x: auto;
+    }
+
+    .nav-tabs button {
+      flex: 1;
+      min-width: 110px;
+      padding: 10px 12px;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--gray-600);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: 0.2s;
+    }
+
+    .nav-tabs button.active {
       background: var(--green);
       color: white;
     }
 
-    .nav button:hover:not(.active) {
+    .nav-tabs button:hover:not(.active) {
       background: var(--green-light);
       color: var(--green-dark);
     }
@@ -214,30 +170,21 @@
 
     .card {
       background: white;
-
       border-radius: var(--radius);
-
       box-shadow: var(--shadow);
-
       padding: 24px;
-
       margin-bottom: 20px;
     }
 
-    .card-title {
-      color: var(--green-dark);
-
+    .card h2 {
       font-size: 1.15rem;
-      font-weight: 700;
-
+      color: var(--green-dark);
+      margin-bottom: 18px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--green-light);
       display: flex;
       align-items: center;
       gap: 8px;
-
-      padding-bottom: 12px;
-      margin-bottom: 20px;
-
-      border-bottom: 2px solid var(--green-light);
     }
 
     /* ================= FORM ================= */
@@ -246,125 +193,88 @@
       margin-bottom: 20px;
     }
 
-    .form-label {
+    .form-group label {
       display: block;
-
-      font-weight: 700;
-
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--gray-800);
       font-size: 0.95rem;
-
-      margin-bottom: 7px;
     }
 
-    .required {
+    .req {
       color: var(--red);
-      margin-left: 4px;
+      margin-right: 4px;
     }
 
     .hint {
       font-size: 0.82rem;
-      color: var(--gray-500);
-
-      margin-bottom: 7px;
+      color: var(--gray-600);
+      margin-bottom: 6px;
     }
 
-    input[type="text"],
-    input[type="tel"],
-    input[type="password"],
-    select,
-    textarea {
+    .form-group input[type="text"],
+    .form-group input[type="tel"],
+    .form-group input[type="password"],
+    .form-group select,
+    .form-group textarea {
       width: 100%;
-
-      border: 1.5px solid var(--gray-200);
-
-      background: var(--gray-100);
-
-      border-radius: 11px;
-
       padding: 12px 14px;
-
+      border: 1.5px solid var(--gray-200);
+      border-radius: 10px;
       font-size: 1rem;
-
-      color: var(--gray-900);
-
-      outline: none;
-
+      background: var(--gray-100);
       transition: 0.2s;
     }
 
-    input:focus,
-    select:focus,
-    textarea:focus {
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
       border-color: var(--green);
-
+      box-shadow: 0 0 0 3px rgba(26,122,76,0.15);
       background: white;
-
-      box-shadow:
-        0 0 0 3px rgba(22, 128, 79, 0.12);
     }
 
-    textarea {
-      min-height: 100px;
+    .form-group textarea {
+      min-height: 90px;
       resize: vertical;
     }
 
     /* ================= DATES ================= */
 
-    .dates {
-      max-height: 350px;
-
+    .dates-box {
+      max-height: 340px;
       overflow-y: auto;
-
       border: 1.5px solid var(--gray-200);
-
-      border-radius: 11px;
-
+      border-radius: 10px;
       padding: 8px;
-
       background: var(--gray-100);
     }
 
     .date-item {
       display: flex;
-
       align-items: flex-start;
-
       gap: 12px;
-
-      background: white;
-
       padding: 12px;
-
-      border-radius: 10px;
-
-      margin-bottom: 7px;
-
+      border-radius: 8px;
+      margin-bottom: 6px;
+      background: white;
       border: 1.5px solid transparent;
-
       cursor: pointer;
-
       transition: 0.15s;
-    }
-
-    .date-item:last-child {
-      margin-bottom: 0;
     }
 
     .date-item:hover,
     .date-item.selected {
       border-color: var(--green);
-
       background: var(--green-light);
     }
 
     .date-item input {
       width: 20px;
       height: 20px;
-
-      margin-top: 4px;
-
+      margin-top: 3px;
       accent-color: var(--green);
-
       flex-shrink: 0;
     }
 
@@ -372,16 +282,14 @@
       flex: 1;
     }
 
-    .date-main {
-      font-weight: 700;
+    .date-info .main {
+      font-weight: 600;
       font-size: 0.95rem;
     }
 
-    .date-occasion {
+    .date-info .occ {
+      font-size: 0.85rem;
       color: var(--green-dark);
-
-      font-size: 0.84rem;
-
       margin-top: 2px;
     }
 
@@ -389,21 +297,16 @@
 
     .badge {
       display: inline-block;
-
       font-size: 0.75rem;
-
       padding: 2px 10px;
-
-      border-radius: 30px;
-
-      margin-top: 5px;
-
-      font-weight: 600;
+      border-radius: 20px;
+      margin-top: 4px;
+      font-weight: 500;
     }
 
     .badge-free {
-      background: #d9f2df;
-      color: #17652c;
+      background: #d4edda;
+      color: #155724;
     }
 
     .badge-pending {
@@ -411,104 +314,88 @@
       color: #856404;
     }
 
-    .badge-confirmed {
-      background: #dbeafe;
-      color: #1e40af;
+    .badge-full {
+      background: #f8d7da;
+      color: #721c24;
     }
 
-    .badge-rejected,
+    .badge-confirmed {
+      background: #cce5ff;
+      color: #004085;
+    }
+
     .badge-closed {
       background: #f8d7da;
-      color: #842029;
+      color: #721c24;
     }
 
     /* ================= CONFIRM ================= */
 
     .confirm-box {
       display: flex;
-
       align-items: flex-start;
-
       gap: 10px;
-
-      background: var(--gold-light);
-
-      border: 1.5px solid var(--gold);
-
-      border-radius: 11px;
-
       padding: 14px;
-
+      background: var(--gold-light);
+      border-radius: 10px;
+      border: 1.5px solid var(--gold);
       margin-bottom: 20px;
     }
 
     .confirm-box input {
       width: 20px;
       height: 20px;
-
-      margin-top: 3px;
-
+      margin-top: 2px;
       accent-color: var(--gold);
-
       flex-shrink: 0;
     }
 
     .confirm-box label {
-      font-size: 0.9rem;
-      font-weight: 600;
-
+      font-size: 0.92rem;
+      font-weight: 500;
       cursor: pointer;
     }
 
     /* ================= BUTTONS ================= */
 
     .btn {
-      width: 100%;
-
-      border: none;
-
-      border-radius: 11px;
-
-      padding: 14px 20px;
-
-      font-size: 1rem;
-
-      font-weight: 700;
-
-      cursor: pointer;
-
       display: inline-flex;
-
-      justify-content: center;
-
       align-items: center;
-
-      gap: 7px;
-
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      cursor: pointer;
       transition: 0.2s;
+      width: 100%;
     }
 
     .btn-primary {
+      background: linear-gradient(
+        135deg,
+        var(--green),
+        var(--green-dark)
+      );
       color: white;
-
-      background:
-        linear-gradient(
-          135deg,
-          var(--green),
-          var(--green-dark)
-        );
-
-      box-shadow:
-        0 4px 14px rgba(22, 128, 79, 0.3);
+      box-shadow: 0 4px 14px rgba(26,122,76,0.35);
     }
 
     .btn-primary:hover {
       transform: translateY(-1px);
     }
 
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
     .btn-secondary {
       background: var(--gray-200);
-      color: var(--gray-900);
+      color: var(--gray-800);
     }
 
     .btn-danger {
@@ -516,55 +403,93 @@
       color: white;
     }
 
-    .btn-small {
+    .btn-sm {
+      padding: 7px 14px;
+      font-size: 0.84rem;
       width: auto;
-
-      padding: 7px 13px;
-
-      font-size: 0.82rem;
     }
 
-    .btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
+    .btn.loading {
+      opacity: 0.75;
+      cursor: wait;
+      pointer-events: none;
+    }
+
+    .btn.loading::after {
+      content: "";
+      width: 16px;
+      height: 16px;
+      border: 2px solid currentColor;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin-right: 6px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
     }
 
     /* ================= SUCCESS ================= */
 
-    .success {
+    .success-box {
       display: none;
-
       text-align: center;
-
-      padding: 35px 20px;
-
-      background:
-        linear-gradient(
-          135deg,
-          #e8f5e9,
-          #c8e6c9
-        );
-
-      border: 2px solid var(--green);
-
+      padding: 32px 20px;
+      background: linear-gradient(
+        135deg,
+        #e8f5e9,
+        #c8e6c9
+      );
       border-radius: var(--radius);
+      border: 2px solid var(--green);
     }
 
-    .success-icon {
+    .success-box .icon {
       font-size: 3rem;
-      margin-bottom: 10px;
-    }
-
-    .success h3 {
-      color: var(--green-dark);
-
       margin-bottom: 12px;
-
-      font-size: 1.25rem;
     }
 
-    .success p {
-      font-size: 0.93rem;
+    .success-box h3 {
+      color: var(--green-dark);
+      font-size: 1.25rem;
+      margin-bottom: 12px;
+    }
+
+    .success-box p {
+      font-size: 0.95rem;
+      line-height: 1.8;
+    }
+
+    /* ================= ADMIN ================= */
+
+    .admin-login {
+      max-width: 360px;
+      margin: 30px auto;
+      text-align: center;
+    }
+
+    .request-card {
+      border: 1.5px solid var(--gray-200);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 12px;
+      background: white;
+    }
+
+    .request-card .meta {
+      font-size: 0.85rem;
+      color: var(--gray-600);
+      margin-bottom: 8px;
+    }
+
+    .admin-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
     }
 
     /* ================= TRACK ================= */
@@ -575,57 +500,10 @@
 
     .track-item {
       background: var(--gray-100);
-
-      border-radius: 11px;
-
-      border-right: 4px solid var(--green);
-
+      border-radius: 10px;
       padding: 14px;
-
       margin-bottom: 10px;
-    }
-
-    /* ================= ADMIN ================= */
-
-    .admin-login {
-      max-width: 380px;
-      margin: 30px auto;
-
-      text-align: center;
-    }
-
-    .request-card {
-      background: white;
-
-      border: 1.5px solid var(--gray-200);
-
-      border-radius: 11px;
-
-      padding: 15px;
-
-      margin-bottom: 12px;
-    }
-
-    .meta {
-      color: var(--gray-500);
-
-      font-size: 0.82rem;
-
-      margin-bottom: 8px;
-    }
-
-    .admin-actions {
-      display: flex;
-
-      flex-wrap: wrap;
-
-      gap: 6px;
-
-      margin-top: 12px;
-    }
-
-    .admin-actions .btn {
-      width: auto;
+      border-right: 4px solid var(--green);
     }
 
     /* ================= TABLE ================= */
@@ -636,104 +514,70 @@
 
     table {
       width: 100%;
-
       border-collapse: collapse;
-
-      font-size: 0.84rem;
+      font-size: 0.88rem;
     }
 
     th,
     td {
-      padding: 9px 7px;
-
+      padding: 10px 8px;
       text-align: right;
-
       border-bottom: 1px solid var(--gray-200);
     }
 
     th {
       background: var(--green-light);
-
       color: var(--green-dark);
-
-      font-weight: 700;
-
+      font-weight: 600;
       white-space: nowrap;
     }
 
-    /* ================= EMPTY ================= */
+    /* ================= OTHER ================= */
 
     .empty {
       text-align: center;
-
-      color: var(--gray-500);
-
-      padding: 35px 15px;
+      padding: 40px 20px;
+      color: var(--gray-600);
     }
 
-    .empty-icon {
-      font-size: 2.4rem;
-
-      margin-bottom: 10px;
-
-      opacity: 0.6;
+    .empty .icon {
+      font-size: 2.5rem;
+      margin-bottom: 12px;
+      opacity: 0.5;
     }
 
     .loading {
       text-align: center;
-
-      padding: 35px 15px;
-
-      color: var(--gray-500);
+      padding: 40px;
+      color: var(--gray-600);
     }
-
-    /* ================= FOOTER ================= */
 
     .footer {
       text-align: center;
-
-      padding: 25px 15px;
-
-      color: var(--gray-500);
-
-      font-size: 0.84rem;
+      padding: 24px 16px;
+      font-size: 0.85rem;
+      color: var(--gray-600);
     }
 
     .footer strong {
       color: var(--green-dark);
     }
 
-    /* ================= TOAST ================= */
-
     .toast {
       position: fixed;
-
       bottom: 24px;
-
       left: 50%;
-
       transform: translateX(-50%);
-
-      background: var(--gray-900);
-
+      background: var(--gray-800);
       color: white;
-
-      padding: 11px 22px;
-
+      padding: 12px 24px;
       border-radius: 30px;
-
-      font-size: 0.88rem;
-
-      z-index: 5000;
-
+      font-size: 0.9rem;
+      z-index: 1000;
       opacity: 0;
-
+      transition: opacity 0.3s;
       pointer-events: none;
-
-      transition: opacity 0.25s;
-
       max-width: 90%;
-
       text-align: center;
     }
 
@@ -741,39 +585,23 @@
       opacity: 1;
     }
 
-    /* ================= MOBILE ================= */
-
     @media (max-width: 480px) {
-
-      .header {
-        padding: 25px 15px 20px;
-      }
-
-      .logo {
-        width: 85px;
-        height: 85px;
-      }
-
       .header h1 {
-        font-size: 1.18rem;
+        font-size: 1.25rem;
       }
 
-      .header .subtitle {
-        font-size: 0.95rem;
-      }
-
-      .container {
-        padding: 12px;
+      .header .logo {
+        width: 82px;
+        height: 82px;
       }
 
       .card {
         padding: 18px;
       }
 
-      .nav button {
-        min-width: 115px;
-
+      .nav-tabs button {
         font-size: 0.82rem;
+        padding: 8px 10px;
       }
     }
   </style>
@@ -781,49 +609,46 @@
 
 <body>
 
-  <!-- ================= دکمه مدیریت ================= -->
-
+  <!-- دکمه مدیریت -->
   <button
-    class="admin-button"
-    id="adminButton"
+    class="admin-gear"
+    id="adminGearBtn"
     title="مدیریت"
     onclick="openAdmin()"
   >
     ⚙️
   </button>
 
-
   <!-- ================= HEADER ================= -->
 
-  <header class="header">
+  <div class="header">
 
     <img
       class="logo"
       src="https://cdn.imgurl.ir/uploads/a0282_logo.png"
-      alt="لوگوی مسجد"
+      alt="لوگوی گروه مردمی مودّت"
     >
 
     <h1>
-      سامانه ثبت‌نام بانیان جلسات هیئت مودّت‌ الحسین (ع)
+      سامانه ثبت نام بانیان جلسات هیئت مودّت‌ الحسین (ع)
     </h1>
 
     <div class="subtitle">
       گروه مردمی مودّت
     </div>
 
-    <p class="description">
+    <p class="desc">
       برای مشارکت در برگزاری جلسات هیئت، مشخصات خود را وارد کرده
       و تاریخ موردنظر خود را انتخاب کنید.
     </p>
 
-  </header>
+  </div>
 
-
-  <main class="container">
+  <div class="container">
 
     <!-- ================= NAV ================= -->
 
-    <nav class="nav" id="nav">
+    <div class="nav-tabs" id="navTabs">
 
       <button
         class="active"
@@ -838,29 +663,20 @@
         🔍 پیگیری وضعیت
       </button>
 
-    </nav>
+    </div>
 
+    <!-- ================= FORM ================= -->
 
-    <!-- ====================================================== -->
-    <!-- فرم ثبت درخواست -->
-    <!-- ====================================================== -->
-
-    <section id="view-form">
+    <div id="view-form">
 
       <div class="card" id="formCard">
 
-        <h2 class="card-title">
-          📝 ثبت درخواست
-        </h2>
-
         <form id="baniForm" novalidate>
-
-          <!-- نام -->
 
           <div class="form-group">
 
-            <label class="form-label">
-              <span class="required">*</span>
+            <label>
+              <span class="req">*</span>
               نام و نام خانوادگی
             </label>
 
@@ -871,19 +687,16 @@
             <input
               type="text"
               id="fullName"
-              autocomplete="name"
               required
+              autocomplete="name"
             >
 
           </div>
 
-
-          <!-- شماره تماس -->
-
           <div class="form-group">
 
-            <label class="form-label">
-              <span class="required">*</span>
+            <label>
+              <span class="req">*</span>
               شماره تماس
             </label>
 
@@ -895,23 +708,21 @@
             <input
               type="tel"
               id="phone"
+              required
               placeholder="09xxxxxxxxx"
               dir="ltr"
+              style="text-align:left;"
               maxlength="11"
               inputmode="numeric"
-              required
             >
 
           </div>
 
-
-          <!-- تاریخ -->
-
           <div class="form-group">
 
-            <label class="form-label">
-              <span class="required">*</span>
-              تاریخ موردنظر
+            <label>
+              <span class="req">*</span>
+              تاریخ موردنظر برای بانی شدن
             </label>
 
             <div class="hint">
@@ -919,22 +730,19 @@
             </div>
 
             <div
-              class="dates"
+              class="dates-box"
               id="datesList"
             >
               <div class="loading">
-                در حال دریافت تاریخ‌ها...
+                در حال بارگذاری تاریخ‌ها...
               </div>
             </div>
 
           </div>
 
-
-          <!-- توضیحات -->
-
           <div class="form-group">
 
-            <label class="form-label">
+            <label>
               توضیحات
             </label>
 
@@ -948,9 +756,6 @@
             ></textarea>
 
           </div>
-
-
-          <!-- تأیید -->
 
           <div class="confirm-box">
 
@@ -966,9 +771,6 @@
 
           </div>
 
-
-          <!-- دکمه -->
-
           <button
             type="submit"
             class="btn btn-primary"
@@ -981,15 +783,14 @@
 
       </div>
 
-
-      <!-- ================= SUCCESS ================= -->
+      <!-- پیام موفقیت -->
 
       <div
-        class="success"
+        class="success-box"
         id="successBox"
       >
 
-        <div class="success-icon">
+        <div class="icon">
           ✅
         </div>
 
@@ -1003,15 +804,14 @@
           <br>
           درخواست شما پس از بررسی و هماهنگی تأیید خواهد شد.
           <br>
-          برای مشاهده وضعیت درخواست خود از بخش
-          «پیگیری وضعیت» استفاده کنید.
+          برای پیگیری وضعیت، از بخش «پیگیری وضعیت» استفاده کنید.
         </p>
 
         <br>
 
         <button
           class="btn btn-secondary"
-          style="max-width:230px;margin:auto;"
+          style="max-width:220px;margin:0 auto;"
           onclick="resetForm()"
         >
           ثبت درخواست جدید
@@ -1019,48 +819,40 @@
 
       </div>
 
-    </section>
+    </div>
 
+    <!-- ================= TRACK ================= -->
 
-    <!-- ====================================================== -->
-    <!-- پیگیری -->
-    <!-- ====================================================== -->
-
-    <section
+    <div
       id="view-track"
       style="display:none;"
     >
 
       <div class="card">
 
-        <h2 class="card-title">
+        <h2>
           🔍 پیگیری وضعیت درخواست
         </h2>
 
         <div class="form-group">
 
-          <label class="form-label">
-            شماره تماس
+          <label>
+            شماره تماسی که با آن ثبت‌نام کرده‌اید
           </label>
-
-          <div class="hint">
-            شماره تماسی که هنگام ثبت درخواست وارد کرده‌اید.
-          </div>
 
           <input
             type="tel"
             id="trackPhone"
             placeholder="09xxxxxxxxx"
             dir="ltr"
+            style="text-align:left;"
             maxlength="11"
-            inputmode="numeric"
           >
 
         </div>
 
         <button
           class="btn btn-primary"
-          id="trackButton"
           onclick="trackStatus()"
         >
           مشاهده وضعیت
@@ -1073,31 +865,36 @@
 
       </div>
 
-    </section>
+    </div>
 
+    <!-- ================= ADMIN ================= -->
 
-    <!-- ====================================================== -->
-    <!-- مدیریت -->
-    <!-- ====================================================== -->
-
-    <section
+    <div
       id="view-admin"
       style="display:none;"
     >
 
-      <!-- ورود مدیریت -->
+      <!-- ورود مدیر -->
 
       <div
         id="adminLogin"
         class="card admin-login"
       >
 
-        <h2 class="card-title">
-          🔐 ورود به مدیریت
+        <h2
+          style="justify-content:center;border:none;"
+        >
+          ورود به بخش مدیریت
         </h2>
 
-        <p style="color:var(--gray-500);font-size:.88rem;margin-bottom:18px;">
-          این بخش فقط برای مدیر سامانه قابل دسترسی است.
+        <p
+          style="
+            margin-bottom:16px;
+            color:var(--gray-600);
+            font-size:0.9rem;
+          "
+        >
+          این بخش فقط برای مدیران قابل دسترس است.
         </p>
 
         <div class="form-group">
@@ -1105,7 +902,7 @@
           <input
             type="password"
             id="adminPass"
-            placeholder="رمز عبور"
+            placeholder="رمز عبور را وارد کنید"
             style="text-align:center;"
           >
 
@@ -1113,14 +910,12 @@
 
         <button
           class="btn btn-primary"
-          id="loginButton"
           onclick="loginAdmin()"
         >
           ورود
         </button>
 
       </div>
-
 
       <!-- پنل مدیریت -->
 
@@ -1138,15 +933,18 @@
               display:flex;
               justify-content:space-between;
               align-items:center;
-              gap:10px;
               flex-wrap:wrap;
-              margin-bottom:18px;
+              gap:10px;
+              margin-bottom:16px;
             "
           >
 
             <h2
-              class="card-title"
-              style="margin:0;border:0;padding:0;"
+              style="
+                margin:0;
+                border:none;
+                padding:0;
+              "
             >
               📋 درخواست‌ها
             </h2>
@@ -1155,18 +953,20 @@
               style="
                 display:flex;
                 gap:6px;
+                align-items:center;
               "
             >
 
               <button
-                class="btn btn-secondary btn-small"
+                class="btn btn-secondary btn-sm"
+                type="button"
                 onclick="refreshAdminData(true)"
               >
                 ↻ بروزرسانی
               </button>
 
               <button
-                class="btn btn-secondary btn-small"
+                class="btn btn-secondary btn-sm"
                 onclick="logoutAdmin()"
               >
                 خروج
@@ -1176,41 +976,38 @@
 
           </div>
 
-
-          <!-- فیلتر -->
-
           <div
             style="
+              margin-bottom:14px;
               display:flex;
               gap:6px;
               flex-wrap:wrap;
-              margin-bottom:15px;
             "
           >
 
             <button
-              class="btn btn-secondary btn-small"
+              class="btn btn-secondary btn-sm"
               onclick="loadAdminRequests('all')"
             >
               همه
             </button>
 
             <button
-              class="btn btn-secondary btn-small"
+              class="btn btn-secondary btn-sm"
               onclick="loadAdminRequests('در انتظار تأیید')"
             >
               در انتظار
             </button>
 
             <button
-              class="btn btn-secondary btn-small"
+              class="btn btn-secondary btn-sm"
               onclick="loadAdminRequests('تأیید شده')"
             >
               تأیید شده
             </button>
 
             <button
-              class="btn btn-secondary btn-small"
+              class="btn btn-secondary btn-sm"
               onclick="loadAdminRequests('رد شده')"
             >
               رد شده
@@ -1218,17 +1015,15 @@
 
           </div>
 
-
           <div id="adminRequests"></div>
 
         </div>
-
 
         <!-- مدیریت تاریخ‌ها -->
 
         <div class="card">
 
-          <h2 class="card-title">
+          <h2>
             📅 مدیریت تاریخ‌ها
           </h2>
 
@@ -1257,18 +1052,17 @@
 
         </div>
 
-
         <!-- افزودن تاریخ -->
 
         <div class="card">
 
-          <h2 class="card-title">
+          <h2>
             ➕ افزودن تاریخ جدید
           </h2>
 
           <div class="form-group">
 
-            <label class="form-label">
+            <label>
               تاریخ شمسی
             </label>
 
@@ -1280,10 +1074,9 @@
 
           </div>
 
-
           <div class="form-group">
 
-            <label class="form-label">
+            <label>
               روز هفته
             </label>
 
@@ -1301,25 +1094,22 @@
 
           </div>
 
-
           <div class="form-group">
 
-            <label class="form-label">
+            <label>
               مناسبت
             </label>
 
             <input
               type="text"
               id="newOccasion"
-              placeholder="ندارد یا نام مناسبت"
+              placeholder="ندارد یا مناسبت مورد نظر"
             >
 
           </div>
 
-
           <button
             class="btn btn-primary"
-            id="addDateButton"
             onclick="addNewDate()"
           >
             افزودن تاریخ
@@ -1329,14 +1119,13 @@
 
       </div>
 
-    </section>
+    </div>
 
-  </main>
-
+  </div>
 
   <!-- ================= FOOTER ================= -->
 
-  <footer class="footer">
+  <div class="footer">
 
     <strong>
       گروه مردمی مودّت
@@ -1344,16 +1133,10 @@
 
     <br>
 
-    سامانه ثبت‌نام بانیان جلسات هیئت مودّت‌ الحسین (ع)
+    سامانه ثبت نام بانیان جلسات هیئت مودّت‌ الحسین (ع)
+    — سال ۱۴۰۵
 
-    <br>
-
-    سال ۱۴۰۵
-
-  </footer>
-
-
-  <!-- ================= TOAST ================= -->
+  </div>
 
   <div
     class="toast"
@@ -1361,23 +1144,21 @@
   ></div>
 
 
+  <!-- ================= JAVASCRIPT ================= -->
+
   <script>
 
-    /* =========================================================
-       تنظیمات اتصال به Google Apps Script
-       ========================================================= */
+    /* ==================================================
+       تنظیمات اتصال به Google Sheets
+    ================================================== */
 
     const SCRIPT_URL =
       "https://script.google.com/macros/s/AKfycbyuWbXB8u89xEmmGpy1yBvJQWq_uenNZJ0W2xiElAvDkSOC8ibKUz4ERBayIY1W-E0I/exec";
 
-    const API_TIMEOUT = 12000;
+    const API_TIMEOUT_MS = 12000;
 
-    const FORM_REFRESH_TIME = 15000;
+    const FORM_REFRESH_MS = 15000;
 
-
-    /* =========================================================
-       متغیرها
-       ========================================================= */
 
     let sessions = [];
 
@@ -1392,52 +1173,61 @@
     const inFlightGets = new Map();
 
 
-    /* =========================================================
+    /* ==================================================
        ابزارها
-       ========================================================= */
+    ================================================== */
 
     function showToast(message) {
 
       const toast =
         document.getElementById("toast");
 
-      toast.textContent =
-        String(message || "");
+      toast.textContent = String(message || "");
 
       toast.classList.add("show");
 
       clearTimeout(showToast.timer);
 
-      showToast.timer =
-        setTimeout(() => {
-          toast.classList.remove("show");
-        }, 3200);
+      showToast.timer = setTimeout(() => {
+
+        toast.classList.remove("show");
+
+      }, 3200);
+
     }
 
 
     function setButtonLoading(
       button,
-      loading,
-      text
+      isLoading,
+      loadingText
     ) {
 
       if (!button) return;
 
-      if (loading) {
+      if (isLoading) {
 
         if (!button.dataset.originalText) {
 
           button.dataset.originalText =
             button.textContent;
+
         }
+
+        button.classList.add("loading");
 
         button.disabled = true;
 
-        if (text) {
-          button.textContent = text;
+        if (loadingText) {
+
+          button.textContent =
+            loadingText;
+
         }
 
       } else {
+
+        button.classList.remove("loading");
 
         button.disabled = false;
 
@@ -1447,6 +1237,7 @@
             button.dataset.originalText;
 
           delete button.dataset.originalText;
+
         }
 
       }
@@ -1459,15 +1250,13 @@
       return String(value ?? "")
         .replace(/[&<>'"]/g, function(char) {
 
-          const map = {
+          return {
             "&": "&amp;",
             "<": "&lt;",
             ">": "&gt;",
-            "'": "&#039;",
+            "'": "&#39;",
             '"': "&quot;"
-          };
-
-          return map[char];
+          }[char];
 
         });
 
@@ -1476,10 +1265,11 @@
 
     function toEnglishDigits(value) {
 
-      return String(value || "")
+      return String(value)
         .replace(/[۰-۹]/g, function(digit) {
 
-          return "۰۱۲۳۴۵۶۷۸۹".indexOf(digit);
+          return "۰۱۲۳۴۵۶۷۸۹"
+            .indexOf(digit);
 
         });
 
@@ -1500,20 +1290,21 @@
 
     function normalizePhone(phone) {
 
-      let p =
-        toEnglishDigits(phone)
-        .replace(/\D/g, "");
+      let value =
+        toEnglishDigits(
+          String(phone || "")
+        ).replace(/\D/g, "");
 
       if (
-        p.length === 10 &&
-        p.startsWith("9")
+        value.length === 10 &&
+        value.startsWith("9")
       ) {
 
-        p = "0" + p;
+        value = "0" + value;
 
       }
 
-      return p;
+      return value;
 
     }
 
@@ -1526,10 +1317,6 @@
 
     }
 
-
-    /* =========================================================
-       مدیریت نشست
-       ========================================================= */
 
     function getAdminToken() {
 
@@ -1553,9 +1340,9 @@
     }
 
 
-    /* =========================================================
-       ارتباط با سرور
-       ========================================================= */
+    /* ==================================================
+       ارتباط با Google Apps Script
+    ================================================== */
 
     async function fetchJson(
       url,
@@ -1568,20 +1355,17 @@
       const timeout =
         setTimeout(
           () => controller.abort(),
-          API_TIMEOUT
+          API_TIMEOUT_MS
         );
 
       try {
 
         const response =
-          await fetch(
-            url,
-            {
-              ...options,
-              signal: controller.signal,
-              cache: "no-store"
-            }
-          );
+          await fetch(url, {
+            ...options,
+            signal: controller.signal,
+            cache: "no-store"
+          });
 
         if (!response.ok) {
 
@@ -1598,7 +1382,7 @@
 
           return JSON.parse(text);
 
-        } catch {
+        } catch (error) {
 
           throw new Error(
             "پاسخ نامعتبر از سرور دریافت شد."
@@ -1642,7 +1426,7 @@
               resolve =>
                 setTimeout(
                   resolve,
-                  700 + i * 600
+                  700 + (i * 600)
                 )
             );
 
@@ -1654,7 +1438,9 @@
 
       throw (
         lastError ||
-        new Error("خطا در دریافت اطلاعات")
+        new Error(
+          "خطا در دریافت اطلاعات"
+        )
       );
 
     }
@@ -1664,6 +1450,20 @@
       view = "all",
       params = {}
     ) {
+
+      if (
+        SCRIPT_URL.includes(
+          "PASTE_YOUR"
+        )
+      ) {
+
+        return {
+          success: false,
+          message:
+            "لینک Web App تنظیم نشده است."
+        };
+
+      }
 
       const query =
         new URLSearchParams({
@@ -1691,13 +1491,12 @@
       }
 
       const promise =
-        fetchGetWithRetry(
-          url
-        ).finally(() => {
+        fetchGetWithRetry(url)
+          .finally(() => {
 
-          inFlightGets.delete(key);
+            inFlightGets.delete(key);
 
-        });
+          });
 
       inFlightGets.set(
         key,
@@ -1713,6 +1512,20 @@
       data,
       retrySafe = false
     ) {
+
+      if (
+        SCRIPT_URL.includes(
+          "PASTE_YOUR"
+        )
+      ) {
+
+        return {
+          success: false,
+          message:
+            "لینک Web App تنظیم نشده است."
+        };
+
+      }
 
       const attempts =
         retrySafe ? 2 : 1;
@@ -1746,9 +1559,7 @@
 
           lastError = error;
 
-          if (
-            i < attempts - 1
-          ) {
+          if (i < attempts - 1) {
 
             await new Promise(
               resolve =>
@@ -1774,9 +1585,7 @@
     }
 
 
-    function handleUnauthorized(
-      result
-    ) {
+    function handleUnauthorized(result) {
 
       if (
         result &&
@@ -1794,7 +1603,7 @@
         ).style.display = "none";
 
         showToast(
-          "نشست مدیریت منقضی شده است."
+          "نشست مدیریت منقضی شده؛ دوباره وارد شوید."
         );
 
         return true;
@@ -1806,9 +1615,9 @@
     }
 
 
-    /* =========================================================
+    /* ==================================================
        بارگذاری تاریخ‌ها
-       ========================================================= */
+    ================================================== */
 
     async function loadData(
       force = false
@@ -1817,8 +1626,9 @@
       if (
         !force &&
         sessions.length &&
-        Date.now() - lastFormRefresh <
-          FORM_REFRESH_TIME
+        Date.now() -
+          lastFormRefresh <
+          FORM_REFRESH_MS
       ) {
 
         renderDates();
@@ -1827,30 +1637,22 @@
 
       }
 
-
       const box =
         document.getElementById(
           "datesList"
         );
 
-
       if (!sessions.length) {
 
         box.innerHTML =
-          '<div class="loading">' +
-          "در حال دریافت تاریخ‌ها..." +
-          "</div>";
+          '<div class="loading">در حال دریافت تاریخ‌ها از شیت...</div>';
 
       }
-
 
       try {
 
         const data =
-          await apiGet(
-            "sessions"
-          );
-
+          await apiGet("sessions");
 
         if (
           !data ||
@@ -1864,7 +1666,6 @@
 
         }
 
-
         if (
           !Array.isArray(
             data.sessions
@@ -1872,16 +1673,14 @@
         ) {
 
           throw new Error(
-            "لیست تاریخ‌ها نامعتبر است."
+            "لیست تاریخ‌ها از سرور نامعتبر است."
           );
 
         }
 
-
         sessions =
           data.sessions.map(
             session => ({
-
               ...session,
 
               count:
@@ -1890,17 +1689,13 @@
                 )
                   ? Number(session.count)
                   : 0
-
             })
           );
-
 
         lastFormRefresh =
           Date.now();
 
-
         renderDates();
-
 
       } catch (error) {
 
@@ -1909,40 +1704,32 @@
           error
         );
 
-
         if (sessions.length) {
 
           renderDates();
 
           showToast(
-            "بروزرسانی ناموفق بود؛ اطلاعات قبلی نمایش داده شد."
+            "بروزرسانی شیت ناموفق بود؛ اطلاعات آخرین بار نمایش داده شد."
           );
 
         } else {
 
           box.innerHTML = `
-
             <div class="empty">
-
-              <div class="empty-icon">
-                ⚠️
-              </div>
-
+              <div class="icon">⚠️</div>
               <p>
-                دریافت تاریخ‌ها انجام نشد.
+                دریافت تاریخ‌ها از شیت انجام نشد.
               </p>
 
               <button
                 type="button"
-                class="btn btn-secondary"
-                style="max-width:180px;margin:15px auto 0;"
+                class="btn btn-secondary btn-sm"
+                style="margin-top:12px;"
                 onclick="loadData(true)"
               >
                 ↻ تلاش دوباره
               </button>
-
             </div>
-
           `;
 
         }
@@ -1952,10 +1739,6 @@
     }
 
 
-    /* =========================================================
-       نمایش تاریخ‌ها
-       ========================================================= */
-
     function renderDates() {
 
       const box =
@@ -1963,8 +1746,7 @@
           "datesList"
         );
 
-
-      const selected =
+      const selectedBefore =
         new Set(
           Array.from(
             document.querySelectorAll(
@@ -1984,26 +1766,20 @@
               session.count,
               10
             ) || 0) < 2 &&
-            session.status !== "بسته شده"
+            session.status !==
+              "بسته شده"
         );
 
 
       if (!visible.length) {
 
         box.innerHTML = `
-
           <div class="empty">
-
-            <div class="empty-icon">
-              📅
-            </div>
-
+            <div class="icon">📅</div>
             <p>
-              در حال حاضر تاریخ آزادی برای ثبت درخواست وجود ندارد.
+              در حال حاضر تاریخ آزادی برای ثبت‌نام وجود ندارد.
             </p>
-
           </div>
-
         `;
 
         return;
@@ -2019,14 +1795,14 @@
               String(session.id);
 
             const checked =
-              selected.has(id);
-
+              selectedBefore.has(id);
 
             return `
-
               <div
-                class="date-item ${checked ? "selected" : ""}"
-                data-id="${escapeHtml(id)}"
+                class="date-item ${
+                  checked ? "selected" : ""
+                }"
+                data-session-id="${escapeHtml(id)}"
               >
 
                 <input
@@ -2038,16 +1814,18 @@
 
                 <div class="date-info">
 
-                  <div class="date-main">
+                  <div class="main">
                     ${escapeHtml(session.day)}
                     ${escapeHtml(session.date)}
                   </div>
 
-                  <div class="date-occasion">
+                  <div class="occ">
                     ${
                       session.occasion === "ندارد"
                         ? "—"
-                        : escapeHtml(session.occasion)
+                        : escapeHtml(
+                            session.occasion
+                          )
                     }
                   </div>
 
@@ -2066,7 +1844,6 @@
                 </div>
 
               </div>
-
             `;
 
           }
@@ -2074,12 +1851,14 @@
 
 
       box
-        .querySelectorAll(".date-item")
+        .querySelectorAll(
+          ".date-item"
+        )
         .forEach(item => {
 
           item.addEventListener(
             "click",
-            function(event) {
+            event => {
 
               const checkbox =
                 item.querySelector(
@@ -2087,7 +1866,8 @@
                 );
 
               if (
-                event.target !== checkbox
+                event.target !==
+                checkbox
               ) {
 
                 checkbox.checked =
@@ -2108,9 +1888,9 @@
     }
 
 
-    /* =========================================================
+    /* ==================================================
        ثبت درخواست
-       ========================================================= */
+    ================================================== */
 
     document
       .getElementById("baniForm")
@@ -2120,33 +1900,36 @@
 
           event.preventDefault();
 
-
           const fullName =
             document
-              .getElementById("fullName")
+              .getElementById(
+                "fullName"
+              )
               .value
               .trim();
-
 
           const phone =
             document
-              .getElementById("phone")
+              .getElementById(
+                "phone"
+              )
               .value
               .trim();
-
 
           const notes =
             document
-              .getElementById("notes")
+              .getElementById(
+                "notes"
+              )
               .value
               .trim();
 
-
           const confirmed =
             document
-              .getElementById("confirmCheck")
+              .getElementById(
+                "confirmCheck"
+              )
               .checked;
-
 
           const selected =
             Array.from(
@@ -2201,22 +1984,18 @@
                 id =>
                   sessions.find(
                     item =>
-                      String(item.id) === id
+                      String(item.id) ===
+                      id
                   )
               )
               .filter(Boolean)
               .map(
                 session => ({
-
                   id: session.id,
-
                   date: session.date,
-
                   day: session.day,
-
                   occasion:
                     session.occasion
-
                 })
               );
 
@@ -2227,20 +2006,19 @@
           ) {
 
             return showToast(
-              "یکی از تاریخ‌ها تغییر کرده است. دوباره انتخاب کنید."
+              "یکی از تاریخ‌ها تغییر کرده است؛ دوباره انتخاب کنید."
             );
 
           }
 
 
-          const button =
+          const submitButton =
             document.getElementById(
               "submitBtn"
             );
 
-
           setButtonLoading(
-            button,
+            submitButton,
             true,
             "در حال ثبت..."
           );
@@ -2256,7 +2034,9 @@
                 fullName,
 
                 phone:
-                  normalizePhone(phone),
+                  normalizePhone(
+                    phone
+                  ),
 
                 baniType:
                   "بانی هیئت",
@@ -2280,13 +2060,13 @@
 
             document.getElementById(
               "formCard"
-            ).style.display = "none";
-
+            ).style.display =
+              "none";
 
             document.getElementById(
               "successBox"
-            ).style.display = "block";
-
+            ).style.display =
+              "block";
 
             window.scrollTo({
               top: 0,
@@ -2302,7 +2082,8 @@
             console.error(error);
 
             showToast(
-              error.name === "AbortError"
+              error.name ===
+                "AbortError"
                 ? "پاسخ سرور طول کشید؛ دوباره تلاش کنید."
                 : "خطا در ارتباط با سرور"
             );
@@ -2311,7 +2092,7 @@
           } finally {
 
             setButtonLoading(
-              button,
+              submitButton,
               false
             );
 
@@ -2329,25 +2110,24 @@
         )
         .reset();
 
-
       document.getElementById(
         "formCard"
-      ).style.display = "block";
-
+      ).style.display =
+        "block";
 
       document.getElementById(
         "successBox"
-      ).style.display = "none";
-
+      ).style.display =
+        "none";
 
       renderDates();
 
     }
 
 
-    /* =========================================================
-       پیگیری
-       ========================================================= */
+    /* ==================================================
+       پیگیری درخواست
+    ================================================== */
 
     async function trackStatus() {
 
@@ -2372,12 +2152,11 @@
 
 
       const button =
-        document.getElementById(
-          "trackButton"
+        document.querySelector(
+          "#view-track .btn-primary"
         );
 
-
-      const resultBox =
+      const box =
         document.getElementById(
           "trackResult"
         );
@@ -2390,10 +2169,8 @@
       );
 
 
-      resultBox.innerHTML =
-        '<div class="loading">' +
-        "در حال دریافت اطلاعات..." +
-        "</div>";
+      box.innerHTML =
+        '<div class="loading">در حال دریافت اطلاعات...</div>';
 
 
       try {
@@ -2408,13 +2185,14 @@
         if (!data.success) {
 
           throw new Error(
-            data.message || "خطا"
+            data.message ||
+            "خطا"
           );
 
         }
 
 
-        const list =
+        const myRequests =
           Array.isArray(
             data.requests
           )
@@ -2422,131 +2200,122 @@
             : [];
 
 
-        if (!list.length) {
+        if (!myRequests.length) {
 
-          resultBox.innerHTML = `
-
+          box.innerHTML = `
             <div class="empty">
-
-              <div class="empty-icon">
-                📭
-              </div>
-
+              <div class="icon">📭</div>
               <p>
                 درخواستی با این شماره یافت نشد.
               </p>
-
             </div>
-
           `;
 
         } else {
 
-          resultBox.innerHTML =
-            list
+          box.innerHTML =
+            myRequests
               .slice()
               .reverse()
-              .map(
-                request => {
+              .map(request => {
 
-                  const dates =
-                    (
-                      request.selectedDates ||
-                      []
+                const dates =
+                  (
+                    request.selectedDates ||
+                    []
+                  )
+                    .map(
+                      date =>
+                        `${escapeHtml(
+                          date.day || ""
+                        )} ${escapeHtml(
+                          date.date || ""
+                        )}`
                     )
-                      .map(
-                        date =>
-                          `${escapeHtml(
-                            date.day || ""
-                          )} ${escapeHtml(
-                            date.date || ""
-                          )}`
-                      )
-                      .join("، ");
+                    .join("، ");
 
 
-                  let badge =
-                    "badge-pending";
+                let statusClass =
+                  "badge-pending";
 
 
-                  if (
-                    request.status ===
-                    "تأیید شده"
-                  ) {
+                if (
+                  request.status ===
+                  "تأیید شده"
+                ) {
 
-                    badge =
-                      "badge-confirmed";
-
-                  }
-
-
-                  if (
-                    request.status ===
-                    "رد شده"
-                  ) {
-
-                    badge =
-                      "badge-rejected";
-
-                  }
-
-
-                  return `
-
-                    <div class="track-item">
-
-                      <div>
-                        <strong>
-                          ${escapeHtml(
-                            request.fullName
-                          )}
-                        </strong>
-
-                        —
-                        ${escapeHtml(
-                          request.baniType ||
-                          "بانی هیئت"
-                        )}
-
-                      </div>
-
-                      <div style="margin:6px 0;">
-                        تاریخ‌ها:
-                        ${dates}
-                      </div>
-
-                      <div>
-                        وضعیت:
-
-                        <span
-                          class="badge ${badge}"
-                        >
-                          ${escapeHtml(
-                            request.status
-                          )}
-                        </span>
-
-                      </div>
-
-                      <div
-                        style="
-                          font-size:.78rem;
-                          color:var(--gray-500);
-                          margin-top:5px;
-                        "
-                      >
-                        ثبت شده در:
-                        ${escapeHtml(
-                          request.timestamp
-                        )}
-                      </div>
-
-                    </div>
-
-                  `;
+                  statusClass =
+                    "badge-confirmed";
 
                 }
-              )
+
+
+                if (
+                  request.status ===
+                  "رد شده"
+                ) {
+
+                  statusClass =
+                    "badge-full";
+
+                }
+
+
+                return `
+                  <div class="track-item">
+
+                    <div>
+                      <strong>
+                        ${escapeHtml(
+                          request.fullName
+                        )}
+                      </strong>
+
+                      —
+                      ${escapeHtml(
+                        request.baniType ||
+                        "بانی هیئت"
+                      )}
+                    </div>
+
+                    <div
+                      style="
+                        font-size:0.9rem;
+                        margin:6px 0;
+                      "
+                    >
+                      تاریخ‌ها:
+                      ${dates}
+                    </div>
+
+                    <div>
+                      وضعیت:
+                      <span
+                        class="badge ${statusClass}"
+                      >
+                        ${escapeHtml(
+                          request.status
+                        )}
+                      </span>
+                    </div>
+
+                    <div
+                      style="
+                        font-size:0.8rem;
+                        color:var(--gray-600);
+                        margin-top:4px;
+                      "
+                    >
+                      ثبت شده در:
+                      ${escapeHtml(
+                        request.timestamp
+                      )}
+                    </div>
+
+                  </div>
+                `;
+
+              })
               .join("");
 
         }
@@ -2556,7 +2325,7 @@
 
         console.error(error);
 
-        resultBox.innerHTML = "";
+        box.innerHTML = "";
 
         showToast(
           "خطا در دریافت اطلاعات"
@@ -2575,9 +2344,9 @@
     }
 
 
-    /* =========================================================
+    /* ==================================================
        ورود مدیریت
-       ========================================================= */
+    ================================================== */
 
     async function loginAdmin() {
 
@@ -2599,8 +2368,8 @@
 
 
       const button =
-        document.getElementById(
-          "loginButton"
+        document.querySelector(
+          "#adminLogin .btn-primary"
         );
 
 
@@ -2618,7 +2387,6 @@
             {
               action:
                 "loginAdmin",
-
               password
             },
             true
@@ -2646,9 +2414,7 @@
         ).value = "";
 
 
-        await showAdminPanel(
-          true
-        );
+        await showAdminPanel(true);
 
 
       } catch (error) {
@@ -2680,11 +2446,13 @@
 
       document.getElementById(
         "adminLogin"
-      ).style.display = "block";
+      ).style.display =
+        "block";
 
       document.getElementById(
         "adminPanel"
-      ).style.display = "none";
+      ).style.display =
+        "none";
 
       showView("form");
 
@@ -2692,31 +2460,32 @@
 
 
     async function showAdminPanel(
-      force = false
+      forceLoad = false
     ) {
 
       document.getElementById(
         "adminLogin"
-      ).style.display = "none";
-
+      ).style.display =
+        "none";
 
       document.getElementById(
         "adminPanel"
-      ).style.display = "block";
+      ).style.display =
+        "block";
 
 
       if (
         !adminLoaded ||
-        force
+        forceLoad
       ) {
 
-        await refreshAdminData(
-          true
-        );
+        await refreshAdminData(true);
 
       } else {
 
-        renderAdminRequests();
+        renderAdminRequestsList(
+          currentAdminFilter
+        );
 
         renderAdminDates();
 
@@ -2725,11 +2494,11 @@
     }
 
 
-    /* =========================================================
-       درخواست‌های مدیریت
-       ========================================================= */
+    /* ==================================================
+       نمایش درخواست‌های مدیریت
+    ================================================== */
 
-    function renderAdminRequests(
+    function renderAdminRequestsList(
       filter = currentAdminFilter
     ) {
 
@@ -2754,25 +2523,20 @@
 
 
       list =
-        list.slice().reverse();
+        list
+          .slice()
+          .reverse();
 
 
       if (!list.length) {
 
         box.innerHTML = `
-
           <div class="empty">
-
-            <div class="empty-icon">
-              📭
-            </div>
-
+            <div class="icon">📭</div>
             <p>
               درخواستی یافت نشد.
             </p>
-
           </div>
-
         `;
 
         return;
@@ -2782,237 +2546,237 @@
 
       box.innerHTML =
         list
-          .map(
-            request => {
+          .map(request => {
 
-              let badge =
-                "badge-pending";
-
-
-              if (
-                request.status ===
-                "تأیید شده"
-              ) {
-
-                badge =
-                  "badge-confirmed";
-
-              }
-
-
-              if (
-                request.status ===
-                "رد شده"
-              ) {
-
-                badge =
-                  "badge-rejected";
-
-              }
-
-
-              const dates =
-                (
-                  request.selectedDates ||
-                  []
+            const datesHtml =
+              (
+                request.selectedDates ||
+                []
+              )
+                .map(
+                  date =>
+                    `
+                    <li>
+                      ${escapeHtml(
+                        date.day || ""
+                      )}
+                      ${escapeHtml(
+                        date.date || ""
+                      )}
+                      —
+                      ${
+                        !date.occasion ||
+                        date.occasion === "ندارد"
+                          ? "—"
+                          : escapeHtml(
+                              date.occasion
+                            )
+                      }
+                    </li>
+                  `
                 )
-                  .map(
-                    date =>
-                      `<li>
-                        ${escapeHtml(
-                          date.day || ""
-                        )}
-                        ${escapeHtml(
-                          date.date || ""
-                        )}
-                        —
-                        ${
-                          !date.occasion ||
-                          date.occasion === "ندارد"
-                            ? "—"
-                            : escapeHtml(
-                                date.occasion
-                              )
-                        }
-                      </li>`
-                  )
-                  .join("");
+                .join("");
 
 
-              return `
+            let statusClass =
+              "badge-pending";
 
-                <div class="request-card">
 
-                  <div class="meta">
+            if (
+              request.status ===
+              "تأیید شده"
+            ) {
 
-                    <strong>
-                      #${escapeHtml(
-                        request.id
-                      )}
-                    </strong>
+              statusClass =
+                "badge-confirmed";
 
-                    |
+            }
 
-                    ${escapeHtml(
-                      request.timestamp
+
+            if (
+              request.status ===
+              "رد شده"
+            ) {
+
+              statusClass =
+                "badge-full";
+
+            }
+
+
+            return `
+              <div
+                class="request-card"
+                data-request-id="${escapeHtml(
+                  request.id
+                )}"
+              >
+
+                <div class="meta">
+
+                  <strong>
+                    #${escapeHtml(
+                      request.id
                     )}
+                  </strong>
 
-                    |
+                  |
 
-                    <span
-                      class="badge ${badge}"
-                    >
-                      ${escapeHtml(
-                        request.status
-                      )}
-                    </span>
+                  ${escapeHtml(
+                    request.timestamp
+                  )}
 
-                  </div>
+                  |
 
-
-                  <div>
-                    <strong>
-                      ${escapeHtml(
-                        request.fullName
-                      )}
-                    </strong>
-
-                    —
-
-                    ${escapeHtml(
-                      normalizePhone(
-                        request.phone
-                      )
-                    )}
-
-                  </div>
-
-
-                  <div
-                    style="
-                      font-size:.88rem;
-                      margin-top:4px;
-                    "
+                  <span
+                    class="badge ${statusClass}"
                   >
-                    نوع درخواست:
                     ${escapeHtml(
-                      request.baniType ||
-                      "بانی هیئت"
+                      request.status
                     )}
-                  </div>
+                  </span>
 
+                </div>
+
+
+                <div>
+                  <strong>
+                    ${escapeHtml(
+                      request.fullName
+                    )}
+                  </strong>
+
+                  —
+                  ${escapeHtml(
+                    normalizePhone(
+                      request.phone
+                    )
+                  )}
+                </div>
+
+
+                <div
+                  style="
+                    font-size:0.9rem;
+                    margin:4px 0;
+                  "
+                >
+                  نوع بانی:
+                  ${escapeHtml(
+                    request.baniType ||
+                    "بانی هیئت"
+                  )}
+                </div>
+
+
+                ${
+                  request.notes
+                    ? `
+                      <div
+                        style="
+                          font-size:0.85rem;
+                          color:var(--gray-600);
+                        "
+                      >
+                        توضیحات:
+                        ${escapeHtml(
+                          request.notes
+                        )}
+                      </div>
+                    `
+                    : ""
+                }
+
+
+                <ul
+                  style="
+                    margin:8px 0 8px 16px;
+                    font-size:0.9rem;
+                  "
+                >
+                  ${datesHtml}
+                </ul>
+
+
+                <div class="admin-actions">
 
                   ${
-                    request.notes
+                    request.status ===
+                    "در انتظار تأیید"
                       ? `
-                        <div
-                          style="
-                            font-size:.84rem;
-                            color:var(--gray-500);
-                            margin-top:4px;
-                          "
+                        <button
+                          type="button"
+                          class="btn btn-primary btn-sm"
+                          onclick="updateReq(
+                            '${escapeHtml(
+                              request.id
+                            )}',
+                            'تأیید شده',
+                            this
+                          )"
                         >
-                          توضیحات:
-                          ${escapeHtml(
-                            request.notes
-                          )}
-                        </div>
+                          ✅ تأیید
+                        </button>
+
+                        <button
+                          type="button"
+                          class="btn btn-danger btn-sm"
+                          onclick="updateReq(
+                            '${escapeHtml(
+                              request.id
+                            )}',
+                            'رد شده',
+                            this
+                          )"
+                        >
+                          ❌ رد
+                        </button>
                       `
                       : ""
                   }
 
 
-                  <ul
-                    style="
-                      margin:8px 20px 8px 0;
-                      font-size:.88rem;
-                    "
+                  ${
+                    request.status ===
+                    "تأیید شده"
+                      ? `
+                        <button
+                          type="button"
+                          class="btn btn-secondary btn-sm"
+                          onclick="updateReq(
+                            '${escapeHtml(
+                              request.id
+                            )}',
+                            'رد شده',
+                            this
+                          )"
+                        >
+                          لغو تأیید
+                        </button>
+                      `
+                      : ""
+                  }
+
+
+                  <button
+                    type="button"
+                    class="btn btn-secondary btn-sm"
+                    onclick="deleteReq(
+                      '${escapeHtml(
+                        request.id
+                      )}',
+                      this
+                    )"
                   >
-                    ${dates}
-                  </ul>
-
-
-                  <div class="admin-actions">
-
-                    ${
-                      request.status ===
-                      "در انتظار تأیید"
-                        ? `
-
-                          <button
-                            class="btn btn-primary btn-small"
-                            onclick="updateRequest(
-                              '${escapeHtml(
-                                request.id
-                              )}',
-                              'تأیید شده',
-                              this
-                            )"
-                          >
-                            ✅ تأیید
-                          </button>
-
-                          <button
-                            class="btn btn-danger btn-small"
-                            onclick="updateRequest(
-                              '${escapeHtml(
-                                request.id
-                              )}',
-                              'رد شده',
-                              this
-                            )"
-                          >
-                            ❌ رد
-                          </button>
-
-                        `
-                        : ""
-                    }
-
-
-                    ${
-                      request.status ===
-                      "تأیید شده"
-                        ? `
-
-                          <button
-                            class="btn btn-secondary btn-small"
-                            onclick="updateRequest(
-                              '${escapeHtml(
-                                request.id
-                              )}',
-                              'رد شده',
-                              this
-                            )"
-                          >
-                            لغو تأیید
-                          </button>
-
-                        `
-                        : ""
-                    }
-
-
-                    <button
-                      class="btn btn-secondary btn-small"
-                      onclick="deleteRequest(
-                        '${escapeHtml(
-                          request.id
-                        )}',
-                        this
-                      )"
-                    >
-                      🗑 حذف
-                    </button>
-
-                  </div>
+                    🗑 حذف
+                  </button>
 
                 </div>
 
-              `;
+              </div>
+            `;
 
-            }
-          )
+          })
           .join("");
 
     }
@@ -3028,7 +2792,7 @@
 
       if (adminLoaded) {
 
-        renderAdminRequests(
+        renderAdminRequestsList(
           currentAdminFilter
         );
 
@@ -3037,16 +2801,14 @@
       }
 
 
-      await refreshAdminData(
-        true
-      );
+      await refreshAdminData(true);
 
     }
 
 
-    /* =========================================================
-       دریافت اطلاعات مدیریت
-       ========================================================= */
+    /* ==================================================
+       بروزرسانی مدیریت
+    ================================================== */
 
     async function refreshAdminData(
       showLoader = false
@@ -3060,11 +2822,13 @@
 
         document.getElementById(
           "adminLogin"
-        ).style.display = "block";
+        ).style.display =
+          "block";
 
         document.getElementById(
           "adminPanel"
-        ).style.display = "none";
+        ).style.display =
+          "none";
 
         return;
 
@@ -3083,9 +2847,7 @@
       ) {
 
         box.innerHTML =
-          '<div class="loading">' +
-          "در حال بارگذاری..." +
-          "</div>";
+          '<div class="loading">در حال بارگذاری...</div>';
 
       }
 
@@ -3126,14 +2888,14 @@
           sessions =
             data.sessions.map(
               session => ({
-
                 ...session,
 
                 count:
-                  Number(
-                    session.count
-                  ) || 0
-
+                  Number.isFinite(
+                    Number(session.count)
+                  )
+                    ? Number(session.count)
+                    : 0
               })
             );
 
@@ -3154,7 +2916,9 @@
           Date.now();
 
 
-        renderAdminRequests();
+        renderAdminRequestsList(
+          currentAdminFilter
+        );
 
         renderAdminDates();
 
@@ -3165,6 +2929,23 @@
 
         console.error(error);
 
+        if (!adminLoaded) {
+
+          if (box) {
+
+            box.innerHTML = `
+              <div class="empty">
+                <div class="icon">⚠️</div>
+                <p>
+                  بارگذاری اولیه ناموفق بود.
+                </p>
+              </div>
+            `;
+
+          }
+
+        }
+
         showToast(
           "بارگذاری مدیریت ناموفق بود."
         );
@@ -3174,11 +2955,11 @@
     }
 
 
-    /* =========================================================
+    /* ==================================================
        تغییر وضعیت درخواست
-       ========================================================= */
+    ================================================== */
 
-    async function updateRequest(
+    async function updateReq(
       id,
       status,
       button
@@ -3194,21 +2975,15 @@
 
         const result =
           await apiPost({
-
             action:
               "updateRequest",
-
             id,
-
             status
-
           });
 
 
         if (
-          handleUnauthorized(
-            result
-          )
+          handleUnauthorized(result)
         ) {
 
           return;
@@ -3254,7 +3029,9 @@
         }
 
 
-        renderAdminRequests();
+        renderAdminRequestsList(
+          currentAdminFilter
+        );
 
         renderAdminDates();
 
@@ -3264,7 +3041,7 @@
         showToast(
           status === "تأیید شده"
             ? "درخواست تأیید شد."
-            : "وضعیت درخواست تغییر کرد."
+            : "وضعیت درخواست به‌روزرسانی شد."
         );
 
 
@@ -3273,7 +3050,7 @@
         console.error(error);
 
         showToast(
-          "خطا در ارتباط با سرور"
+          "خطا در ارتباط"
         );
 
 
@@ -3289,11 +3066,11 @@
     }
 
 
-    /* =========================================================
+    /* ==================================================
        حذف درخواست
-       ========================================================= */
+    ================================================== */
 
-    async function deleteRequest(
+    async function deleteReq(
       id,
       button
     ) {
@@ -3319,19 +3096,14 @@
 
         const result =
           await apiPost({
-
             action:
               "deleteRequest",
-
             id
-
           });
 
 
         if (
-          handleUnauthorized(
-            result
-          )
+          handleUnauthorized(result)
         ) {
 
           return;
@@ -3369,7 +3141,9 @@
         }
 
 
-        renderAdminRequests();
+        renderAdminRequestsList(
+          currentAdminFilter
+        );
 
         renderAdminDates();
 
@@ -3386,7 +3160,7 @@
         console.error(error);
 
         showToast(
-          "خطا در ارتباط با سرور"
+          "خطا در ارتباط"
         );
 
 
@@ -3402,9 +3176,9 @@
     }
 
 
-    /* =========================================================
-       نمایش تاریخ‌ها در مدیریت
-       ========================================================= */
+    /* ==================================================
+       نمایش تاریخ‌های مدیریت
+    ================================================== */
 
     function renderAdminDates() {
 
@@ -3414,125 +3188,103 @@
         );
 
 
-      if (!sessions.length) {
-
-        tbody.innerHTML = `
-
-          <tr>
-
-            <td
-              colspan="6"
-              style="text-align:center;"
-            >
-              تاریخی ثبت نشده است.
-            </td>
-
-          </tr>
-
-        `;
-
-        return;
-
-      }
-
-
       tbody.innerHTML =
         sessions
-          .map(
-            session => {
+          .map(session => {
 
-              const count =
-                parseInt(
-                  session.count,
-                  10
-                ) || 0;
+            let statusClass =
+              "badge-free";
 
 
-              const closed =
-                count >= 2 ||
-                session.status ===
-                  "بسته شده";
+            if (
+              (parseInt(
+                session.count,
+                10
+              ) || 0) >= 2 ||
+              session.status ===
+                "بسته شده"
+            ) {
 
-
-              return `
-
-                <tr>
-
-                  <td>
-                    ${escapeHtml(
-                      session.date
-                    )}
-                  </td>
-
-                  <td>
-                    ${escapeHtml(
-                      session.day
-                    )}
-                  </td>
-
-                  <td>
-                    ${
-                      session.occasion ===
-                      "ندارد"
-                        ? "—"
-                        : escapeHtml(
-                            session.occasion
-                          )
-                    }
-                  </td>
-
-                  <td>
-
-                    <span
-                      class="badge ${
-                        closed
-                          ? "badge-closed"
-                          : "badge-free"
-                      }"
-                    >
-                      ${escapeHtml(
-                        session.status
-                      )}
-                    </span>
-
-                  </td>
-
-                  <td>
-                    ${toPersianDigits(
-                      count
-                    )}/۲
-                  </td>
-
-                  <td>
-
-                    <button
-                      class="btn btn-danger btn-small"
-                      onclick="deleteSession(
-                        '${escapeHtml(
-                          session.id
-                        )}',
-                        this
-                      )"
-                    >
-                      حذف
-                    </button>
-
-                  </td>
-
-                </tr>
-
-              `;
+              statusClass =
+                "badge-closed";
 
             }
-          )
+
+
+            return `
+              <tr>
+
+                <td>
+                  ${escapeHtml(
+                    session.date
+                  )}
+                </td>
+
+                <td>
+                  ${escapeHtml(
+                    session.day
+                  )}
+                </td>
+
+                <td>
+                  ${
+                    session.occasion ===
+                    "ندارد"
+                      ? "—"
+                      : escapeHtml(
+                          session.occasion
+                        )
+                  }
+                </td>
+
+                <td>
+                  <span
+                    class="badge ${statusClass}"
+                  >
+                    ${escapeHtml(
+                      session.status
+                    )}
+                  </span>
+                </td>
+
+                <td>
+                  ${toPersianDigits(
+                    parseInt(
+                      session.count,
+                      10
+                    ) || 0
+                  )}/۲
+                </td>
+
+                <td>
+
+                  <button
+                    type="button"
+                    class="btn btn-danger btn-sm"
+                    onclick="deleteSession(
+                      '${escapeHtml(
+                        session.id
+                      )}',
+                      this
+                    )"
+                  >
+                    حذف
+                  </button>
+
+                </td>
+
+              </tr>
+            `;
+
+          })
           .join("");
 
     }
 
 
-    /* =========================================================
+    /* ==================================================
        حذف تاریخ
-       ========================================================= */
+    ================================================== */
 
     async function deleteSession(
       id,
@@ -3560,19 +3312,14 @@
 
         const result =
           await apiPost({
-
             action:
               "deleteSession",
-
             id
-
           });
 
 
         if (
-          handleUnauthorized(
-            result
-          )
+          handleUnauthorized(result)
         ) {
 
           return;
@@ -3613,7 +3360,7 @@
         console.error(error);
 
         showToast(
-          "خطا در ارتباط با سرور"
+          "خطا در ارتباط"
         );
 
 
@@ -3629,9 +3376,9 @@
     }
 
 
-    /* =========================================================
+    /* ==================================================
        افزودن تاریخ
-       ========================================================= */
+    ================================================== */
 
     async function addNewDate() {
 
@@ -3645,9 +3392,11 @@
 
 
       const day =
-        document.getElementById(
-          "newDay"
-        ).value;
+        document
+          .getElementById(
+            "newDay"
+          )
+          .value;
 
 
       const occasion =
@@ -3670,8 +3419,8 @@
 
 
       const button =
-        document.getElementById(
-          "addDateButton"
+        document.querySelector(
+          "#view-admin .card:last-child .btn-primary"
         );
 
 
@@ -3686,23 +3435,16 @@
 
         const result =
           await apiPost({
-
             action:
               "addSession",
-
             date,
-
             day,
-
             occasion
-
           });
 
 
         if (
-          handleUnauthorized(
-            result
-          )
+          handleUnauthorized(result)
         ) {
 
           return;
@@ -3761,7 +3503,7 @@
         console.error(error);
 
         showToast(
-          "خطا در ارتباط با سرور"
+          "خطا در ارتباط"
         );
 
 
@@ -3777,9 +3519,9 @@
     }
 
 
-    /* =========================================================
+    /* ==================================================
        ناوبری
-       ========================================================= */
+    ================================================== */
 
     function showView(view) {
 
@@ -3809,7 +3551,7 @@
 
       document
         .querySelectorAll(
-          "#nav button"
+          "#navTabs button"
         )
         .forEach(button => {
 
@@ -3833,27 +3575,20 @@
 
     document
       .querySelectorAll(
-        "#nav button"
+        "#navTabs button"
       )
       .forEach(button => {
 
         button.addEventListener(
           "click",
-          () => {
-
+          () =>
             showView(
               button.dataset.view
-            );
-
-          }
+            )
         );
 
       });
 
-
-    /* =========================================================
-       باز کردن مدیریت
-       ========================================================= */
 
     function openAdmin() {
 
@@ -3868,21 +3603,18 @@
 
         document.getElementById(
           "adminLogin"
-        ).style.display = "block";
-
+        ).style.display =
+          "block";
 
         document.getElementById(
           "adminPanel"
-        ).style.display = "none";
+        ).style.display =
+          "none";
 
       }
 
     }
 
-
-    /* =========================================================
-       کلید Enter
-       ========================================================= */
 
     document
       .getElementById(
@@ -3893,7 +3625,8 @@
         event => {
 
           if (
-            event.key === "Enter"
+            event.key ===
+            "Enter"
           ) {
 
             trackStatus();
@@ -3913,7 +3646,8 @@
         event => {
 
           if (
-            event.key === "Enter"
+            event.key ===
+            "Enter"
           ) {
 
             loginAdmin();
@@ -3924,9 +3658,9 @@
       );
 
 
-    /* =========================================================
+    /* ==================================================
        شروع برنامه
-       ========================================================= */
+    ================================================== */
 
     loadData(true);
 
