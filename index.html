@@ -167,6 +167,25 @@
     .btn-secondary { background: var(--gray-200); color: var(--gray-800); }
     .btn-danger { background: var(--red); color: white; }
     .btn-sm { padding: 7px 14px; font-size: 0.84rem; width: auto; }
+    .btn.loading {
+      opacity: 0.75;
+      cursor: wait;
+      pointer-events: none;
+    }
+    .btn.loading::after {
+      content: '';
+      width: 16px;
+      height: 16px;
+      border: 2px solid currentColor;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin-right: 6px;
+      flex-shrink: 0;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
 
     /* Success */
     .success-box {
@@ -395,7 +414,6 @@
 
   <script>
     // ==================== تنظیمات ====================
-    // بعد از Deploy کردن Apps Script، لینک Web App را اینجا قرار دهید
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyuWbXB8u89xEmmGpy1yBvJQWq_uenNZJ0W2xiElAvDkSOC8ibKUz4ERBayIY1W-E0I/exec";
 
     // ==================== داده‌های اولیه (فقط برای نمایش تا وقتی شیت لود شود) ====================
@@ -438,8 +456,29 @@
       setTimeout(() => t.classList.remove('show'), 3500);
     }
 
+    function setButtonLoading(btn, isLoading, loadingText) {
+      if (!btn) return;
+      if (isLoading) {
+        btn.dataset.originalText = btn.textContent;
+        btn.classList.add('loading');
+        btn.disabled = true;
+        if (loadingText) btn.textContent = loadingText;
+      } else {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+        if (btn.dataset.originalText) {
+          btn.textContent = btn.dataset.originalText;
+          delete btn.dataset.originalText;
+        }
+      }
+    }
+
     function toEnglishDigits(str) {
-      return str.replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+      return String(str).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+    }
+
+    function toPersianDigits(str) {
+      return String(str).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
     }
 
     function isValidMobile(phone) {
@@ -513,7 +552,7 @@
           <div class="date-info">
             <div class="main">${s.day} ${s.date}</div>
             <div class="occ">${s.occasion === 'ندارد' ? '—' : s.occasion}</div>
-            <span class="badge badge-free">آزاد (${s.count || 0}/۲)</span>
+            <span class="badge badge-free">آزاد (${toPersianDigits(s.count || 0)}/۲)</span>
           </div>
         `;
         item.addEventListener('click', (e) => {
@@ -547,28 +586,31 @@
         return { id: s.id, date: s.date, day: s.day, occasion: s.occasion };
       });
 
-      document.getElementById('submitBtn').disabled = true;
-      document.getElementById('submitBtn').textContent = 'در حال ثبت...';
+      const submitBtn = document.getElementById('submitBtn');
+      setButtonLoading(submitBtn, true, 'در حال ثبت...');
 
-      const result = await apiPost({
-        action: "submit",
-        fullName,
-        phone: toEnglishDigits(phone),
-        baniType: "بانی هیئت",
-        notes,
-        selectedDates
-      });
+      try {
+        const result = await apiPost({
+          action: "submit",
+          fullName,
+          phone: toEnglishDigits(phone),
+          baniType: "بانی هیئت",
+          notes,
+          selectedDates
+        });
 
-      document.getElementById('submitBtn').disabled = false;
-      document.getElementById('submitBtn').textContent = '🔴 ثبت درخواست بانی';
-
-      if (result.success) {
-        document.getElementById('formCard').style.display = 'none';
-        document.getElementById('successBox').style.display = 'block';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        loadData(); // رفرش تاریخ‌ها
-      } else {
-        showToast(result.message || 'خطا در ثبت درخواست');
+        if (result.success) {
+          document.getElementById('formCard').style.display = 'none';
+          document.getElementById('successBox').style.display = 'block';
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          loadData();
+        } else {
+          showToast(result.message || 'خطا در ثبت درخواست');
+        }
+      } catch (err) {
+        showToast('خطا در ارتباط با سرور');
+      } finally {
+        setButtonLoading(submitBtn, false);
       }
     });
 
@@ -587,36 +629,50 @@
         return;
       }
 
-      const data = await apiGet();
-      const myReqs = (data.requests || []).filter(r => r.phone === phone);
+      // پیدا کردن دکمه پیگیری
+      const btn = document.querySelector('#view-track .btn-primary');
+      setButtonLoading(btn, true, 'در حال جستجو...');
 
-      const box = document.getElementById('trackResult');
-      if (myReqs.length === 0) {
-        box.innerHTML = '<div class="empty"><div class="icon">📭</div><p>درخواستی با این شماره یافت نشد.</p></div>';
-        return;
+      try {
+        const data = await apiGet();
+        const myReqs = (data.requests || []).filter(r => toEnglishDigits(String(r.phone || '')).replace(/\D/g, '') === phone.replace(/\D/g, ''));
+
+        const box = document.getElementById('trackResult');
+        if (myReqs.length === 0) {
+          box.innerHTML = '<div class="empty"><div class="icon">📭</div><p>درخواستی با این شماره یافت نشد.</p></div>';
+        } else {
+          box.innerHTML = myReqs.map(r => {
+            const dates = (r.selectedDates || []).map(d => `${d.day} ${d.date}`).join('، ');
+            let statusClass = 'badge-pending';
+            if (r.status === 'تأیید شده') statusClass = 'badge-confirmed';
+            if (r.status === 'رد شده') statusClass = 'badge-full';
+            return `
+              <div class="track-item">
+                <div><strong>${r.fullName}</strong> — ${r.baniType || 'بانی هیئت'}</div>
+                <div style="font-size:0.9rem;margin:6px 0;">تاریخ‌ها: ${dates}</div>
+                <div>وضعیت: <span class="badge ${statusClass}">${r.status}</span></div>
+                <div style="font-size:0.8rem;color:var(--gray-600);margin-top:4px;">ثبت شده در: ${r.timestamp}</div>
+              </div>
+            `;
+          }).join('');
+        }
+      } catch (err) {
+        showToast('خطا در دریافت اطلاعات');
+      } finally {
+        setButtonLoading(btn, false);
       }
-
-      box.innerHTML = myReqs.map(r => {
-        const dates = (r.selectedDates || []).map(d => `${d.day} ${d.date}`).join('، ');
-        let statusClass = 'badge-pending';
-        if (r.status === 'تأیید شده') statusClass = 'badge-confirmed';
-        if (r.status === 'رد شده') statusClass = 'badge-full';
-        return `
-          <div class="track-item">
-            <div><strong>${r.fullName}</strong> — ${r.baniType || 'بانی هیئت'}</div>
-            <div style="font-size:0.9rem;margin:6px 0;">تاریخ‌ها: ${dates}</div>
-            <div>وضعیت: <span class="badge ${statusClass}">${r.status}</span></div>
-            <div style="font-size:0.8rem;color:var(--gray-600);margin-top:4px;">ثبت شده در: ${r.timestamp}</div>
-          </div>
-        `;
-      }).join('');
     }
 
     // ==================== پنل مدیریت ====================
     function loginAdmin() {
-      if (document.getElementById('adminPass').value === 'moddat1405') {
-        sessionStorage.setItem('moddat_admin', '1');
-        showAdminPanel();
+      const btn = document.querySelector('#adminLogin .btn-primary');
+      if (document.getElementById('adminPass').value === 'Mavaddatinfo1405') {
+        setButtonLoading(btn, true, 'در حال ورود...');
+        setTimeout(() => {
+          sessionStorage.setItem('moddat_admin', '1');
+          showAdminPanel();
+          setButtonLoading(btn, false);
+        }, 300);
       } else {
         showToast('رمز عبور اشتباه است.');
       }
@@ -668,41 +724,57 @@
             <ul style="margin:8px 0 8px 16px;font-size:0.9rem;">${datesHtml}</ul>
             <div class="admin-actions">
               ${r.status === 'در انتظار تأیید' ? `
-                <button class="btn btn-primary btn-sm" onclick="updateReq('${r.id}','تأیید شده')">✅ تأیید</button>
-                <button class="btn btn-danger btn-sm" onclick="updateReq('${r.id}','رد شده')">❌ رد</button>
+                <button class="btn btn-primary btn-sm" onclick="updateReq('${r.id}','تأیید شده', this)">✅ تأیید</button>
+                <button class="btn btn-danger btn-sm" onclick="updateReq('${r.id}','رد شده', this)">❌ رد</button>
               ` : ''}
               ${r.status === 'تأیید شده' ? `
-                <button class="btn btn-secondary btn-sm" onclick="updateReq('${r.id}','رد شده')">لغو تأیید</button>
+                <button class="btn btn-secondary btn-sm" onclick="updateReq('${r.id}','رد شده', this)">لغو تأیید</button>
               ` : ''}
-              <button class="btn btn-secondary btn-sm" onclick="deleteReq('${r.id}')">🗑 حذف</button>
+              <button class="btn btn-secondary btn-sm" onclick="deleteReq('${r.id}', this)">🗑 حذف</button>
             </div>
           </div>
         `;
       }).join('');
     }
 
-    async function updateReq(id, status) {
-      const result = await apiPost({ action: "updateRequest", id, status });
-      if (result.success) {
-        showToast('وضعیت به‌روز شد.');
-        loadAdminRequests('all');
-        renderAdminDates();
-        loadData();
-      } else {
-        showToast(result.message || 'خطا');
+    async function updateReq(id, status, btnEl) {
+      const btn = btnEl || (window.event && window.event.target);
+      setButtonLoading(btn, true);
+      try {
+        const result = await apiPost({ action: "updateRequest", id, status });
+        if (result.success) {
+          showToast('وضعیت به‌روز شد.');
+          await loadAdminRequests('all');
+          renderAdminDates();
+          loadData();
+        } else {
+          showToast(result.message || 'خطا');
+        }
+      } catch (e) {
+        showToast('خطا در ارتباط');
+      } finally {
+        setButtonLoading(btn, false);
       }
     }
 
-    async function deleteReq(id) {
+    async function deleteReq(id, btnEl) {
       if (!confirm('آیا از حذف این درخواست مطمئن هستید؟')) return;
-      const result = await apiPost({ action: "deleteRequest", id });
-      if (result.success) {
-        showToast('حذف شد.');
-        loadAdminRequests('all');
-        renderAdminDates();
-        loadData();
-      } else {
-        showToast(result.message || 'خطا');
+      const btn = btnEl || (window.event && window.event.target);
+      setButtonLoading(btn, true);
+      try {
+        const result = await apiPost({ action: "deleteRequest", id });
+        if (result.success) {
+          showToast('حذف شد.');
+          await loadAdminRequests('all');
+          renderAdminDates();
+          loadData();
+        } else {
+          showToast(result.message || 'خطا');
+        }
+      } catch (e) {
+        showToast('خطا در ارتباط');
+      } finally {
+        setButtonLoading(btn, false);
       }
     }
 
@@ -718,23 +790,32 @@
             <td>${s.day}</td>
             <td>${s.occasion === 'ندارد' ? '—' : s.occasion}</td>
             <td><span class="badge ${statusClass}">${s.status}</span></td>
-            <td>${s.count || 0}/۲</td>
+            <td>${toPersianDigits(s.count || 0)}/۲</td>
             <td>
-              <button class="btn btn-danger btn-sm" onclick="deleteSession(${s.id})">حذف</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteSession(${s.id}, this)">حذف</button>
             </td>
           </tr>
         `;
       }).join('');
     }
 
-    async function deleteSession(id) {
+    async function deleteSession(id, btnEl) {
       if (!confirm('آیا از حذف این تاریخ مطمئن هستید؟')) return;
-      const result = await apiPost({ action: "deleteSession", id });
-      if (result.success) {
-        showToast('تاریخ حذف شد.');
-        loadData().then(() => renderAdminDates());
-      } else {
-        showToast(result.message || 'خطا');
+      const btn = btnEl || (window.event && window.event.target);
+      setButtonLoading(btn, true);
+      try {
+        const result = await apiPost({ action: "deleteSession", id });
+        if (result.success) {
+          showToast('تاریخ حذف شد.');
+          await loadData();
+          renderAdminDates();
+        } else {
+          showToast(result.message || 'خطا');
+        }
+      } catch (e) {
+        showToast('خطا در ارتباط');
+      } finally {
+        setButtonLoading(btn, false);
       }
     }
 
@@ -745,18 +826,27 @@
 
       if (!date) return showToast('تاریخ را وارد کنید.');
 
-      const result = await apiPost({
-        action: "addSession",
-        date, day, occasion
-      });
+      const btn = document.querySelector('#view-admin .card:last-child .btn-primary');
+      setButtonLoading(btn, true, 'در حال افزودن...');
+      try {
+        const result = await apiPost({
+          action: "addSession",
+          date, day, occasion
+        });
 
-      if (result.success) {
-        showToast('تاریخ جدید اضافه شد.');
-        document.getElementById('newDate').value = '';
-        document.getElementById('newOccasion').value = '';
-        loadData().then(() => renderAdminDates());
-      } else {
-        showToast(result.message || 'خطا');
+        if (result.success) {
+          showToast('تاریخ جدید اضافه شد.');
+          document.getElementById('newDate').value = '';
+          document.getElementById('newOccasion').value = '';
+          await loadData();
+          renderAdminDates();
+        } else {
+          showToast(result.message || 'خطا');
+        }
+      } catch (e) {
+        showToast('خطا در ارتباط');
+      } finally {
+        setButtonLoading(btn, false);
       }
     }
 
