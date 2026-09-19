@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>سامانه ثبت‌نام خیرین و بانیان هیئت | مجموعه مردمی مودّت</title>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --green-dark: #0d5c3a;
+      --green: #1a7a4c;
+      --green-light: #e8f5e9;
+      --gold: #c9a227;
+      --gold-light: #f8f1d4;
+      --white: #fff;
+      --gray-100: #f8f9fa;
+      --gray-200: #e9ecef;
+      --gray-600: #6c757d;
+      --gray-800: #343a40;
+      --red: #c0392b;
+      --shadow: 0 4px 20px rgba(0,0,0,0.08);
+      --radius: 12px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Vazirmatn', Tahoma, sans-serif;
+      background: linear-gradient(160deg, #f0f7f4 0%, #e8f0ec 100%);
+      color: var(--gray-800);
+      min-height: 100vh;
+      line-height: 1.7;
+    }
+    .container { max-width: 720px; margin: 0 auto; padding: 16px; }
+
+    /* Header */
+    .header {
+      text-align: center;
+      padding: 28px 16px 20px;
+      background: linear-gradient(135deg, var(--green-dark), var(--green));
+      color: white;
+      border-radius: 0 0 24px 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+    .header .icon { font-size: 2.4rem; margin-bottom: 8px; }
+    .header h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: 6px; }
+    .header .subtitle { font-size: 1.05rem; color: var(--gold-light); font-weight: 500; }
+    .header .desc { margin-top: 12px; font-size: 0.92rem; opacity: 0.9; max-width: 480px; margin-left: auto; margin-right: auto; }
+
+    /* Admin gear icon - top left */
+    .admin-gear {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      z-index: 100;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.92);
+      border: none;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      font-size: 1.25rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .admin-gear:hover { transform: scale(1.08); box-shadow: 0 4px 14px rgba(0,0,0,0.2); }
+
+    /* Nav */
+    .nav-tabs {
+      display: flex; gap: 8px; margin-bottom: 20px;
+      background: white; padding: 8px; border-radius: var(--radius);
+      box-shadow: var(--shadow); overflow-x: auto;
+    }
+    .nav-tabs button {
+      flex: 1; min-width: 110px; padding: 10px 12px; border: none;
+      background: transparent; border-radius: 8px; font-family: inherit;
+      font-size: 0.9rem; font-weight: 500; color: var(--gray-600);
+      cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    }
+    .nav-tabs button.active { background: var(--green); color: white; }
+    .nav-tabs button:hover:not(.active) { background: var(--green-light); color: var(--green-dark); }
+
+    /* Card */
+    .card {
+      background: white; border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 24px; margin-bottom: 20px;
+    }
+    .card h2 {
+      font-size: 1.15rem; color: var(--green-dark); margin-bottom: 18px;
+      padding-bottom: 10px; border-bottom: 2px solid var(--green-light);
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    /* Form */
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+      display: block; font-weight: 600; margin-bottom: 6px;
+      color: var(--gray-800); font-size: 0.95rem;
+    }
+    .form-group label .req { color: var(--red); margin-right: 4px; }
+    .form-group .hint { font-size: 0.82rem; color: var(--gray-600); margin-bottom: 6px; }
+    .form-group input[type="text"],
+    .form-group input[type="tel"],
+    .form-group select,
+    .form-group textarea {
+      width: 100%; padding: 12px 14px; border: 1.5px solid var(--gray-200);
+      border-radius: 10px; font-family: inherit; font-size: 1rem;
+      background: var(--gray-100); transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none; border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(26,122,76,0.15); background: white;
+    }
+    .form-group textarea { min-height: 90px; resize: vertical; }
+
+    /* Dates */
+    .dates-box {
+      max-height: 340px; overflow-y: auto; border: 1.5px solid var(--gray-200);
+      border-radius: 10px; padding: 8px; background: var(--gray-100);
+    }
+    .date-item {
+      display: flex; align-items: flex-start; gap: 12px; padding: 12px;
+      border-radius: 8px; margin-bottom: 6px; background: white;
+      border: 1.5px solid transparent; cursor: pointer; transition: all 0.15s;
+    }
+    .date-item:hover { border-color: var(--green); background: var(--green-light); }
+    .date-item.selected { border-color: var(--green); background: var(--green-light); }
+    .date-item input { width: 20px; height: 20px; margin-top: 3px; accent-color: var(--green); flex-shrink: 0; }
+    .date-info { flex: 1; }
+    .date-info .main { font-weight: 600; font-size: 0.95rem; }
+    .date-info .occ { font-size: 0.85rem; color: var(--green-dark); margin-top: 2px; }
+    .badge {
+      display: inline-block; font-size: 0.75rem; padding: 2px 10px;
+      border-radius: 20px; margin-top: 4px; font-weight: 500;
+    }
+    .badge-free { background: #d4edda; color: #155724; }
+    .badge-pending { background: #fff3cd; color: #856404; }
+    .badge-full { background: #f8d7da; color: #721c24; }
+    .badge-confirmed { background: #cce5ff; color: #004085; }
+    .badge-closed { background: #f8d7da; color: #721c24; }
+
+    /* Confirm */
+    .confirm-box {
+      display: flex; align-items: flex-start; gap: 10px; padding: 14px;
+      background: var(--gold-light); border-radius: 10px;
+      border: 1.5px solid var(--gold); margin-bottom: 20px;
+    }
+    .confirm-box input { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--gold); flex-shrink: 0; }
+    .confirm-box label { font-size: 0.92rem; font-weight: 500; cursor: pointer; }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 14px 28px; border: none; border-radius: 10px; font-family: inherit;
+      font-size: 1.05rem; font-weight: 600; cursor: pointer; transition: all 0.2s; width: 100%;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--green), var(--green-dark));
+      color: white; box-shadow: 0 4px 14px rgba(26,122,76,0.35);
+    }
+    .btn-primary:hover { transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .btn-secondary { background: var(--gray-200); color: var(--gray-800); }
+    .btn-danger { background: var(--red); color: white; }
+    .btn-sm { padding: 7px 14px; font-size: 0.84rem; width: auto; }
+
+    /* Success */
+    .success-box {
+      display: none; text-align: center; padding: 32px 20px;
+      background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+      border-radius: var(--radius); border: 2px solid var(--green);
+    }
+    .success-box .icon { font-size: 3rem; margin-bottom: 12px; }
+    .success-box h3 { color: var(--green-dark); font-size: 1.25rem; margin-bottom: 12px; }
+    .success-box p { color: var(--gray-800); font-size: 0.95rem; line-height: 1.8; }
+
+    /* Admin */
+    .admin-login { max-width: 360px; margin: 30px auto; text-align: center; }
+    .request-card {
+      border: 1.5px solid var(--gray-200); border-radius: 10px;
+      padding: 16px; margin-bottom: 12px; background: white;
+    }
+    .request-card .meta { font-size: 0.85rem; color: var(--gray-600); margin-bottom: 8px; }
+    .admin-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+
+    /* Track */
+    .track-result { margin-top: 20px; }
+    .track-item {
+      background: var(--gray-100); border-radius: 10px; padding: 14px;
+      margin-bottom: 10px; border-right: 4px solid var(--green);
+    }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th, td { padding: 10px 8px; text-align: right; border-bottom: 1px solid var(--gray-200); }
+    th { background: var(--green-light); color: var(--green-dark); font-weight: 600; white-space: nowrap; }
+
+    .empty { text-align: center; padding: 40px 20px; color: var(--gray-600); }
+    .empty .icon { font-size: 2.5rem; margin-bottom: 12px; opacity: 0.5; }
+
+    .footer {
+      text-align: center; padding: 24px 16px; font-size: 0.85rem; color: var(--gray-600);
+    }
+    .footer strong { color: var(--green-dark); }
+
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: var(--gray-800); color: white; padding: 12px 24px;
+      border-radius: 30px; font-size: 0.9rem; z-index: 1000;
+      opacity: 0; transition: opacity 0.3s; pointer-events: none;
+    }
+    .toast.show { opacity: 1; }
+
+    .loading {
+      text-align: center; padding: 40px; color: var(--gray-600);
+    }
+
+    @media (max-width: 480px) {
+      .header h1 { font-size: 1.25rem; }
+      .card { padding: 18px; }
+      .nav-tabs button { font-size: 0.82rem; padding: 8px 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- آیکون مدیریت (گوشه بالا چپ) -->
+  <button class="admin-gear" id="adminGearBtn" title="مدیریت" onclick="openAdmin()">⚙️</button>
+
+  <div class="header">
+    <div class="icon">🕌</div>
+    <h1>سامانه ثبت‌نام خیرین و بانیان هیئت</h1>
+    <div class="subtitle">مجموعه مردمی مودّت</div>
+    <p class="desc">برای مشارکت در برگزاری جلسات هیئت، مشخصات خود را وارد کرده و تاریخ موردنظر خود را انتخاب کنید.</p>
+  </div>
+
+  <div class="container">
+    <div class="nav-tabs" id="navTabs">
+      <button class="active" data-view="form">📝 ثبت درخواست</button>
+      <button data-view="track">🔍 پیگیری وضعیت</button>
+    </div>
+
+    <!-- ========== فرم ثبت‌نام ========== -->
+    <div id="view-form">
+      <div class="card" id="formCard">
+        <form id="baniForm" novalidate>
+          <div class="form-group">
+            <label><span class="req">*</span> نام و نام خانوادگی</label>
+            <div class="hint">نام و نام خانوادگی خود را وارد کنید.</div>
+            <input type="text" id="fullName" required autocomplete="name" />
+          </div>
+
+          <div class="form-group">
+            <label><span class="req">*</span> شماره تماس</label>
+            <div class="hint">شماره موبایل خود را وارد کنید (مثال: ۰۹۱۲۳۴۵۶۷۸۹)</div>
+            <input type="tel" id="phone" required placeholder="09xxxxxxxxx" dir="ltr" style="text-align:left;" maxlength="11" inputmode="numeric" />
+          </div>
+
+          <div class="form-group">
+            <label><span class="req">*</span> تاریخ موردنظر برای بانی شدن</label>
+            <div class="hint">یک یا چند تاریخ آزاد را انتخاب کنید.</div>
+            <div class="dates-box" id="datesList">
+              <div class="loading">در حال بارگذاری تاریخ‌ها...</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>توضیحات</label>
+            <div class="hint">در صورت نیاز توضیحات خود را وارد کنید.</div>
+            <textarea id="notes" placeholder="توضیحات اختیاری..."></textarea>
+          </div>
+
+          <div class="confirm-box">
+            <input type="checkbox" id="confirmCheck" required />
+            <label for="confirmCheck">اطلاعات واردشده را بررسی کرده‌ام و صحیح است.</label>
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="submitBtn">🔴 ثبت درخواست بانی</button>
+        </form>
+      </div>
+
+      <div class="success-box" id="successBox">
+        <div class="icon">✅</div>
+        <h3>درخواست شما با موفقیت ثبت شد.</h3>
+        <p>
+          از همراهی و مشارکت شما در برگزاری هیئت مجموعه مردمی مودّت صمیمانه سپاسگزاریم.<br>
+          درخواست شما پس از بررسی و هماهنگی تأیید خواهد شد.<br>
+          برای پیگیری وضعیت، از بخش «پیگیری وضعیت» استفاده کنید.
+        </p>
+        <br>
+        <button class="btn btn-secondary" style="max-width:220px;margin:0 auto;" onclick="resetForm()">ثبت درخواست جدید</button>
+      </div>
+    </div>
+
+    <!-- ========== پیگیری وضعیت ========== -->
+    <div id="view-track" style="display:none;">
+      <div class="card">
+        <h2>🔍 پیگیری وضعیت درخواست</h2>
+        <div class="form-group">
+          <label>شماره تماسی که با آن ثبت‌نام کرده‌اید</label>
+          <input type="tel" id="trackPhone" placeholder="09xxxxxxxxx" dir="ltr" style="text-align:left;" maxlength="11" />
+        </div>
+        <button class="btn btn-primary" onclick="trackStatus()">مشاهده وضعیت</button>
+        <div id="trackResult" class="track-result"></div>
+      </div>
+    </div>
+
+    <!-- ========== پنل مدیریت ========== -->
+    <div id="view-admin" style="display:none;">
+      <div id="adminLogin" class="card admin-login">
+        <h2 style="justify-content:center;border:none;">ورود به بخش مدیریت</h2>
+        <p style="margin-bottom:16px;color:var(--gray-600);font-size:0.9rem;">این بخش فقط برای مدیران قابل دسترس است و به رمز عبور مجهز است.</p>
+        <div class="form-group">
+          <input type="password" id="adminPass" placeholder="رمز عبور را وارد کنید" style="text-align:center;" />
+        </div>
+        <button class="btn btn-primary" onclick="loginAdmin()">ورود</button>
+      </div>
+
+      <div id="adminPanel" style="display:none;">
+        <!-- درخواست‌ها -->
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+            <h2 style="margin:0;border:none;padding:0;">📋 درخواست‌ها</h2>
+            <button class="btn btn-secondary btn-sm" onclick="logoutAdmin()">خروج</button>
+          </div>
+          <div style="margin-bottom:14px;display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="btn btn-secondary btn-sm" onclick="loadAdminRequests('all')">همه</button>
+            <button class="btn btn-secondary btn-sm" onclick="loadAdminRequests('در انتظار تأیید')">در انتظار</button>
+            <button class="btn btn-secondary btn-sm" onclick="loadAdminRequests('تأیید شده')">تأیید شده</button>
+            <button class="btn btn-secondary btn-sm" onclick="loadAdminRequests('رد شده')">رد شده</button>
+          </div>
+          <div id="adminRequests"></div>
+        </div>
+
+        <!-- مدیریت تاریخ‌ها -->
+        <div class="card">
+          <h2>📅 مدیریت تاریخ‌ها</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>تاریخ</th>
+                  <th>روز</th>
+                  <th>مناسبت</th>
+                  <th>وضعیت</th>
+                  <th>تعداد</th>
+                  <th>عملیات</th>
+                </tr>
+              </thead>
+              <tbody id="adminDatesBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- افزودن تاریخ جدید -->
+        <div class="card">
+          <h2>➕ افزودن تاریخ جدید</h2>
+          <div class="form-group">
+            <label>تاریخ شمسی</label>
+            <input type="text" id="newDate" placeholder="مثال: ۱۴۰۵/۰۷/۰۵" />
+          </div>
+          <div class="form-group">
+            <label>روز هفته</label>
+            <select id="newDay">
+              <option value="شنبه">شنبه</option>
+              <option value="یکشنبه">یکشنبه</option>
+              <option value="دوشنبه">دوشنبه</option>
+              <option value="سه‌شنبه">سه‌شنبه</option>
+              <option value="چهارشنبه">چهارشنبه</option>
+              <option value="پنج‌شنبه">پنج‌شنبه</option>
+              <option value="جمعه">جمعه</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>مناسبت</label>
+            <input type="text" id="newOccasion" placeholder="ندارد یا مناسبت مورد نظر" />
+          </div>
+          <button class="btn btn-primary" onclick="addNewDate()">افزودن تاریخ</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <strong>مجموعه مردمی مودّت</strong><br>
+    سامانه ثبت‌نام خیرین و بانیان هیئت — سال ۱۴۰۵
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ==================== تنظیمات ====================
+    // بعد از Deploy کردن Apps Script، لینک Web App را اینجا قرار دهید
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyuWbXB8u89xEmmGpy1yBvJQWq_uenNZJ0W2xiElAvDkSOC8ibKUz4ERBayIY1W-E0I/exec";
+
+    // ==================== داده‌های اولیه (فقط برای نمایش تا وقتی شیت لود شود) ====================
+    const INITIAL_SESSIONS = [
+      { id: 1,  date: "۱۴۰۵/۰۶/۲۹", day: "یکشنبه", occasion: "ولادت امام حسن عسکری (ع)", status: "آزاد", count: 0 },
+      { id: 2,  date: "۱۴۰۵/۰۷/۰۵", day: "یکشنبه", occasion: "ندارد", status: "آزاد", count: 0 },
+      { id: 3,  date: "۱۴۰۵/۰۷/۱۲", day: "یکشنبه", occasion: "ندارد", status: "آزاد", count: 0 },
+      { id: 4,  date: "۱۴۰۵/۰۷/۱۹", day: "یکشنبه", occasion: "ندارد", status: "آزاد", count: 0 },
+      { id: 5,  date: "۱۴۰۵/۰۷/۲۶", day: "یکشنبه", occasion: "ندارد", status: "آزاد", count: 0 },
+      { id: 6,  date: "۱۴۰۵/۰۸/۰۲", day: "شنبه",   occasion: "شهادت حضرت زهرا به روایت اول", status: "آزاد", count: 0 },
+      { id: 7,  date: "۱۴۰۵/۰۸/۱۰", day: "یکشنبه", occasion: "ندارد", status: "آزاد", count: 0 },
+      { id: 8,  date: "۱۴۰۵/۰۸/۱۷", day: "یکشنبه", occasion: "ندارد", status: "آزاد", count: 0 },
+      { id: 9,  date: "۱۴۰۵/۰۸/۲۴", day: "یکشنبه", occasion: "شهادت حضرت زهرا (ع)", status: "آزاد", count: 0 },
+      { id: 10, date: "۱۴۰۵/۰۹/۰۱", day: "یکشنبه", occasion: "وفات حضرت ام‌البنین (ع)", status: "آزاد", count: 0 },
+      { id: 11, date: "۱۴۰۵/۰۹/۰۸", day: "یکشنبه", occasion: "ولادت حضرت زهرا (ع) / روز زن", status: "آزاد", count: 0 },
+      { id: 12, date: "۱۴۰۵/۰۹/۱۵", day: "یکشنبه", occasion: "ندارد", status: "آزاد", count: 0 },
+      { id: 13, date: "۱۴۰۵/۰۹/۲۲", day: "یکشنبه", occasion: "شهادت امام علی النقی (ع)", status: "آزاد", count: 0 },
+      { id: 14, date: "۱۴۰۵/۰۹/۲۹", day: "یکشنبه", occasion: "ولادت امام محمد تقی (ع)", status: "آزاد", count: 0 },
+      { id: 15, date: "۱۴۰۵/۱۰/۰۶", day: "یکشنبه", occasion: "ندارد", status: "آزاد", count: 0 },
+      { id: 16, date: "۱۴۰۵/۱۰/۱۴", day: "دوشنبه", occasion: "شهادت امام موسی کاظم (ع)", status: "آزاد", count: 0 },
+      { id: 17, date: "۱۴۰۵/۱۰/۲۰", day: "یکشنبه", occasion: "ندارد", status: "آزاد", count: 0 },
+      { id: 18, date: "۱۴۰۵/۱۰/۲۷", day: "یکشنبه", occasion: "ندارد", status: "آزاد", count: 0 },
+      { id: 19, date: "۱۴۰۵/۱۱/۱۱", day: "یکشنبه", occasion: "ندارد", status: "آزاد", count: 0 },
+      { id: 20, date: "۱۴۰۵/۱۱/۱۸", day: "یکشنبه", occasion: "ندارد", status: "آزاد", count: 0 },
+      { id: 21, date: "۱۴۰۵/۱۱/۲۵", day: "یکشنبه", occasion: "ندارد", status: "آزاد", count: 0 },
+      { id: 22, date: "۱۴۰۵/۱۲/۰۳", day: "دوشنبه", occasion: "ولادت امام حسن مجتبی (ع)", status: "آزاد", count: 0 },
+      { id: 23, date: "۱۴۰۵/۱۲/۰۹", day: "یکشنبه", occasion: "شهادت امام علی (ع)", status: "آزاد", count: 0 },
+      { id: 24, date: "۱۴۰۵/۱۲/۱۶", day: "یکشنبه", occasion: "ندارد", status: "آزاد", count: 0 },
+      { id: 25, date: "۱۴۰۵/۱۲/۲۳", day: "یکشنبه", occasion: "ورود حضرت مسلم به کوفه", status: "آزاد", count: 0 }
+    ];
+
+    let sessions = [];
+    let requests = [];
+
+    // ==================== ابزارها ====================
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3500);
+    }
+
+    function toEnglishDigits(str) {
+      return str.replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+    }
+
+    function isValidMobile(phone) {
+      phone = toEnglishDigits(phone).replace(/[\s\-\(\)]/g, '');
+      return /^09\d{9}$/.test(phone);
+    }
+
+    // ==================== ارتباط با Apps Script ====================
+    async function apiGet() {
+      if (SCRIPT_URL.includes("PASTE_YOUR")) {
+        // حالت دمو (بدون اتصال واقعی)
+        return { success: true, sessions: INITIAL_SESSIONS, requests: [] };
+      }
+      const res = await fetch(SCRIPT_URL);
+      return await res.json();
+    }
+
+    async function apiPost(data) {
+      if (SCRIPT_URL.includes("PASTE_YOUR")) {
+        showToast("لطفاً ابتدا لینک Web App را در کد قرار دهید.");
+        return { success: false };
+      }
+      const res = await fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(data)
+      });
+      return await res.json();
+    }
+
+    // ==================== بارگذاری اولیه ====================
+    async function loadData() {
+      try {
+        const data = await apiGet();
+        if (data.success) {
+          sessions = data.sessions || INITIAL_SESSIONS;
+          requests = data.requests || [];
+        } else {
+          sessions = INITIAL_SESSIONS;
+          requests = [];
+        }
+      } catch (e) {
+        console.error(e);
+        sessions = INITIAL_SESSIONS;
+        requests = [];
+      }
+      renderDates();
+    }
+
+    // ==================== رندر تاریخ‌های فرم (فقط آزاد) ====================
+    function renderDates() {
+      const box = document.getElementById('datesList');
+      box.innerHTML = '';
+
+      // فقط تاریخ‌هایی که ظرفیت دارند
+      const visible = sessions.filter(s => {
+        if (s.count >= 2) return false;
+        if (s.status === "بسته شده") return false;
+        return true;
+      });
+
+      if (visible.length === 0) {
+        box.innerHTML = '<div class="empty"><div class="icon">📅</div><p>در حال حاضر تاریخ آزادی برای ثبت‌نام وجود ندارد.</p></div>';
+        return;
+      }
+
+      visible.forEach(s => {
+        const item = document.createElement('div');
+        item.className = 'date-item';
+        item.innerHTML = `
+          <input type="checkbox" name="dates" value="${s.id}" />
+          <div class="date-info">
+            <div class="main">${s.day} ${s.date}</div>
+            <div class="occ">${s.occasion === 'ندارد' ? '—' : s.occasion}</div>
+            <span class="badge badge-free">آزاد (${s.count || 0}/۲)</span>
+          </div>
+        `;
+        item.addEventListener('click', (e) => {
+          if (e.target.tagName !== 'INPUT') {
+            const cb = item.querySelector('input');
+            cb.checked = !cb.checked;
+          }
+          item.classList.toggle('selected', item.querySelector('input').checked);
+        });
+        box.appendChild(item);
+      });
+    }
+
+    // ==================== ارسال فرم ====================
+    document.getElementById('baniForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const fullName = document.getElementById('fullName').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const notes = document.getElementById('notes').value.trim();
+      const confirmed = document.getElementById('confirmCheck').checked;
+      const selected = Array.from(document.querySelectorAll('input[name="dates"]:checked')).map(cb => parseInt(cb.value));
+
+      if (!fullName) return showToast('نام و نام خانوادگی را وارد کنید.');
+      if (!isValidMobile(phone)) return showToast('شماره موبایل معتبر نیست (باید با ۰۹ شروع شود و ۱۱ رقم باشد).');
+      if (selected.length === 0) return showToast('حداقل یک تاریخ انتخاب کنید.');
+      if (!confirmed) return showToast('صحت اطلاعات را تأیید کنید.');
+
+      const selectedDates = selected.map(id => {
+        const s = sessions.find(x => x.id == id);
+        return { id: s.id, date: s.date, day: s.day, occasion: s.occasion };
+      });
+
+      document.getElementById('submitBtn').disabled = true;
+      document.getElementById('submitBtn').textContent = 'در حال ثبت...';
+
+      const result = await apiPost({
+        action: "submit",
+        fullName,
+        phone: toEnglishDigits(phone),
+        baniType: "بانی هیئت",
+        notes,
+        selectedDates
+      });
+
+      document.getElementById('submitBtn').disabled = false;
+      document.getElementById('submitBtn').textContent = '🔴 ثبت درخواست بانی';
+
+      if (result.success) {
+        document.getElementById('formCard').style.display = 'none';
+        document.getElementById('successBox').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        loadData(); // رفرش تاریخ‌ها
+      } else {
+        showToast(result.message || 'خطا در ثبت درخواست');
+      }
+    });
+
+    function resetForm() {
+      document.getElementById('baniForm').reset();
+      document.getElementById('formCard').style.display = 'block';
+      document.getElementById('successBox').style.display = 'none';
+      renderDates();
+    }
+
+    // ==================== پیگیری وضعیت ====================
+    async function trackStatus() {
+      const phone = toEnglishDigits(document.getElementById('trackPhone').value.trim());
+      if (!isValidMobile(phone)) {
+        showToast('شماره موبایل معتبر نیست.');
+        return;
+      }
+
+      const data = await apiGet();
+      const myReqs = (data.requests || []).filter(r => r.phone === phone);
+
+      const box = document.getElementById('trackResult');
+      if (myReqs.length === 0) {
+        box.innerHTML = '<div class="empty"><div class="icon">📭</div><p>درخواستی با این شماره یافت نشد.</p></div>';
+        return;
+      }
+
+      box.innerHTML = myReqs.map(r => {
+        const dates = (r.selectedDates || []).map(d => `${d.day} ${d.date}`).join('، ');
+        let statusClass = 'badge-pending';
+        if (r.status === 'تأیید شده') statusClass = 'badge-confirmed';
+        if (r.status === 'رد شده') statusClass = 'badge-full';
+        return `
+          <div class="track-item">
+            <div><strong>${r.fullName}</strong> — ${r.baniType || 'بانی هیئت'}</div>
+            <div style="font-size:0.9rem;margin:6px 0;">تاریخ‌ها: ${dates}</div>
+            <div>وضعیت: <span class="badge ${statusClass}">${r.status}</span></div>
+            <div style="font-size:0.8rem;color:var(--gray-600);margin-top:4px;">ثبت شده در: ${r.timestamp}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ==================== پنل مدیریت ====================
+    function loginAdmin() {
+      if (document.getElementById('adminPass').value === 'moddat1405') {
+        sessionStorage.setItem('moddat_admin', '1');
+        showAdminPanel();
+      } else {
+        showToast('رمز عبور اشتباه است.');
+      }
+    }
+
+    function logoutAdmin() {
+      sessionStorage.removeItem('moddat_admin');
+      document.getElementById('adminLogin').style.display = 'block';
+      document.getElementById('adminPanel').style.display = 'none';
+      showView('form');
+    }
+
+    function showAdminPanel() {
+      document.getElementById('adminLogin').style.display = 'none';
+      document.getElementById('adminPanel').style.display = 'block';
+      loadAdminRequests('all');
+      renderAdminDates();
+    }
+
+    async function loadAdminRequests(filter) {
+      const data = await apiGet();
+      requests = data.requests || [];
+      sessions = data.sessions || sessions;
+
+      const box = document.getElementById('adminRequests');
+      let list = filter === 'all' ? requests : requests.filter(r => r.status === filter);
+      list = list.reverse();
+
+      if (list.length === 0) {
+        box.innerHTML = '<div class="empty"><div class="icon">📭</div><p>درخواستی یافت نشد.</p></div>';
+        return;
+      }
+
+      box.innerHTML = list.map(r => {
+        const datesHtml = (r.selectedDates || []).map(d => `<li>${d.day} ${d.date} — ${d.occasion === 'ندارد' ? '—' : d.occasion}</li>`).join('');
+        let statusClass = 'badge-pending';
+        if (r.status === 'تأیید شده') statusClass = 'badge-confirmed';
+        if (r.status === 'رد شده') statusClass = 'badge-full';
+
+        return `
+          <div class="request-card">
+            <div class="meta">
+              <strong>#${r.id}</strong> | ${r.timestamp} |
+              <span class="badge ${statusClass}">${r.status}</span>
+            </div>
+            <div><strong>${r.fullName}</strong> — ${r.phone}</div>
+            <div style="font-size:0.9rem;margin:4px 0;">نوع بانی: ${r.baniType || 'بانی هیئت'}</div>
+            ${r.notes ? `<div style="font-size:0.85rem;color:var(--gray-600);">توضیحات: ${r.notes}</div>` : ''}
+            <ul style="margin:8px 0 8px 16px;font-size:0.9rem;">${datesHtml}</ul>
+            <div class="admin-actions">
+              ${r.status === 'در انتظار تأیید' ? `
+                <button class="btn btn-primary btn-sm" onclick="updateReq('${r.id}','تأیید شده')">✅ تأیید</button>
+                <button class="btn btn-danger btn-sm" onclick="updateReq('${r.id}','رد شده')">❌ رد</button>
+              ` : ''}
+              ${r.status === 'تأیید شده' ? `
+                <button class="btn btn-secondary btn-sm" onclick="updateReq('${r.id}','رد شده')">لغو تأیید</button>
+              ` : ''}
+              <button class="btn btn-secondary btn-sm" onclick="deleteReq('${r.id}')">🗑 حذف</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function updateReq(id, status) {
+      const result = await apiPost({ action: "updateRequest", id, status });
+      if (result.success) {
+        showToast('وضعیت به‌روز شد.');
+        loadAdminRequests('all');
+        renderAdminDates();
+        loadData();
+      } else {
+        showToast(result.message || 'خطا');
+      }
+    }
+
+    async function deleteReq(id) {
+      if (!confirm('آیا از حذف این درخواست مطمئن هستید؟')) return;
+      const result = await apiPost({ action: "deleteRequest", id });
+      if (result.success) {
+        showToast('حذف شد.');
+        loadAdminRequests('all');
+        renderAdminDates();
+        loadData();
+      } else {
+        showToast(result.message || 'خطا');
+      }
+    }
+
+    function renderAdminDates() {
+      const tbody = document.getElementById('adminDatesBody');
+      tbody.innerHTML = sessions.map(s => {
+        let statusClass = 'badge-free';
+        if (s.count >= 2 || s.status === 'بسته شده') statusClass = 'badge-closed';
+
+        return `
+          <tr>
+            <td>${s.date}</td>
+            <td>${s.day}</td>
+            <td>${s.occasion === 'ندارد' ? '—' : s.occasion}</td>
+            <td><span class="badge ${statusClass}">${s.status}</span></td>
+            <td>${s.count || 0}/۲</td>
+            <td>
+              <button class="btn btn-danger btn-sm" onclick="deleteSession(${s.id})">حذف</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function deleteSession(id) {
+      if (!confirm('آیا از حذف این تاریخ مطمئن هستید؟')) return;
+      const result = await apiPost({ action: "deleteSession", id });
+      if (result.success) {
+        showToast('تاریخ حذف شد.');
+        loadData().then(() => renderAdminDates());
+      } else {
+        showToast(result.message || 'خطا');
+      }
+    }
+
+    async function addNewDate() {
+      const date = document.getElementById('newDate').value.trim();
+      const day = document.getElementById('newDay').value;
+      const occasion = document.getElementById('newOccasion').value.trim() || 'ندارد';
+
+      if (!date) return showToast('تاریخ را وارد کنید.');
+
+      const result = await apiPost({
+        action: "addSession",
+        date, day, occasion
+      });
+
+      if (result.success) {
+        showToast('تاریخ جدید اضافه شد.');
+        document.getElementById('newDate').value = '';
+        document.getElementById('newOccasion').value = '';
+        loadData().then(() => renderAdminDates());
+      } else {
+        showToast(result.message || 'خطا');
+      }
+    }
+
+    // ==================== ناوبری ====================
+    function showView(view) {
+      document.getElementById('view-form').style.display = view === 'form' ? 'block' : 'none';
+      document.getElementById('view-track').style.display = view === 'track' ? 'block' : 'none';
+      document.getElementById('view-admin').style.display = view === 'admin' ? 'block' : 'none';
+
+      document.querySelectorAll('#navTabs button').forEach(b => {
+        b.classList.toggle('active', b.dataset.view === view);
+      });
+
+      if (view === 'form') loadData();
+    }
+
+    document.querySelectorAll('#navTabs button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        showView(btn.dataset.view);
+      });
+    });
+
+    function openAdmin() {
+      showView('admin');
+      if (sessionStorage.getItem('moddat_admin') === '1') {
+        showAdminPanel();
+      } else {
+        document.getElementById('adminLogin').style.display = 'block';
+        document.getElementById('adminPanel').style.display = 'none';
+      }
+    }
+
+    // شروع
+    loadData();
+  </script>
+</body>
+</html>
