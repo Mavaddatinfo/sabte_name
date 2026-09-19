@@ -498,7 +498,9 @@
         return { success: true, sessions: INITIAL_SESSIONS, requests: [] };
       }
       try {
-        const res = await fetch(SCRIPT_URL);
+        // جلوگیری از کش مرورگر (علت خطای بار دوم پیگیری)
+        const url = SCRIPT_URL + (SCRIPT_URL.includes('?') ? '&' : '?') + '_t=' + Date.now();
+        const res = await fetch(url, { cache: 'no-store' });
         const text = await res.text();
         return JSON.parse(text);
       } catch (err) {
@@ -654,20 +656,20 @@
         return;
       }
 
-      // پیدا کردن دکمه پیگیری
       const btn = document.querySelector('#view-track .btn-primary');
+      const box = document.getElementById('trackResult');
       setButtonLoading(btn, true, 'در حال جستجو...');
+      box.innerHTML = '<div class="loading">در حال دریافت اطلاعات...</div>';
 
       try {
         const data = await apiGet();
         const myReqs = (data.requests || []).filter(r => normalizePhone(r.phone) === phone);
 
-        const box = document.getElementById('trackResult');
         if (myReqs.length === 0) {
           box.innerHTML = '<div class="empty"><div class="icon">📭</div><p>درخواستی با این شماره یافت نشد.</p></div>';
         } else {
           box.innerHTML = myReqs.map(r => {
-            const dates = (r.selectedDates || []).map(d => `${d.day} ${d.date}`).join('، ');
+            const dates = (r.selectedDates || []).map(d => `${d.day || ''} ${d.date || ''}`).join('، ');
             let statusClass = 'badge-pending';
             if (r.status === 'تأیید شده') statusClass = 'badge-confirmed';
             if (r.status === 'رد شده') statusClass = 'badge-full';
@@ -777,7 +779,7 @@
       if (box) {
         box.innerHTML = '<div class="loading">در حال به‌روزرسانی لیست...</div>';
       }
-      await new Promise(r => setTimeout(r, 300));
+      await new Promise(r => setTimeout(r, 150));
       try {
         const data = await apiGet();
         if (data && data.success) {
