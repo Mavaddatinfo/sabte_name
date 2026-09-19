@@ -345,7 +345,7 @@
         <div class="card">
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
             <h2 style="margin:0;border:none;padding:0;">📋 درخواست‌ها</h2>
-            <button class="btn btn-secondary btn-sm" onclick="logoutAdmin()">خروج</button>
+            <div style="display:flex;gap:6px;align-items:center;"><button class="btn btn-secondary btn-sm" type="button" onclick="refreshAdminData(true)">↻ بروزرسانی</button><button class="btn btn-secondary btn-sm" onclick="logoutAdmin()">خروج</button></div>
           </div>
           <div style="margin-bottom:14px;display:flex;gap:6px;flex-wrap:wrap;">
             <button class="btn btn-secondary btn-sm" onclick="loadAdminRequests('all')">همه</button>
@@ -446,7 +446,9 @@
       { id: 25, date: "۱۴۰۵/۱۲/۲۳", day: "یکشنبه", occasion: "ورود حضرت مسلم به کوفه", status: "آزاد", count: 0 }
     ];
 
-    let sessions = [];
+    // تاریخ‌های اولیه فوراً برای جلوگیری از صفحه خالی/خطای بار اول نمایش داده می‌شوند؛
+    // سپس اطلاعات واقعی Google Sheets در پس‌زمینه جایگزینشان می‌شود.
+    let sessions = INITIAL_SESSIONS.map(s => ({ ...s }));
     let requests = [];
     let currentAdminFilter = 'all';
     let lastFormRefresh = 0;
@@ -529,6 +531,23 @@
       }
     }
 
+    // درخواست‌های GET امن هستند که در صورت خطای موقت/بیدار شدن Apps Script دوباره امتحان شوند.
+    // POST عمداً retry خودکار ندارد تا ثبت درخواست دوباره انجام نشود.
+    async function fetchGetWithRetry(url, attempts = 3) {
+      let lastError;
+      for (let i = 0; i < attempts; i++) {
+        try {
+          return await fetchJson(url);
+        } catch (err) {
+          lastError = err;
+          if (i < attempts - 1) {
+            await new Promise(resolve => setTimeout(resolve, 450 * (i + 1)));
+          }
+        }
+      }
+      throw lastError || new Error('خطا در دریافت اطلاعات');
+    }
+
     async function apiGet(view = 'all', params = {}) {
       if (SCRIPT_URL.includes('PASTE_YOUR')) {
         return { success: true, sessions: INITIAL_SESSIONS, requests: [] };
@@ -537,7 +556,7 @@
       const url = SCRIPT_URL + '?' + q.toString();
       const key = view + '|' + JSON.stringify(params);
       if (inFlightGets.has(key)) return inFlightGets.get(key);
-      const promise = fetchJson(url).finally(() => inFlightGets.delete(key));
+      const promise = fetchGetWithRetry(url, 3).finally(() => inFlightGets.delete(key));
       inFlightGets.set(key, promise);
       return promise;
     }
@@ -573,7 +592,8 @@
       try {
         const data = await apiGet('sessions');
         if (!data.success) throw new Error(data.message || 'خطا در دریافت تاریخ‌ها');
-        sessions = Array.isArray(data.sessions) ? data.sessions : INITIAL_SESSIONS;
+        if (!Array.isArray(data.sessions)) throw new Error('لیست تاریخ‌ها از سرور نامعتبر است.');
+        sessions = data.sessions;
         lastFormRefresh = Date.now();
       } catch (e) {
         console.error(e);
@@ -716,7 +736,7 @@
         if (!result.success || !result.token) return showToast(result.message || 'ورود ناموفق بود.');
         sessionStorage.setItem('moddat_admin_token', result.token);
         document.getElementById('adminPass').value = '';
-        showAdminPanel(true);
+        await showAdminPanel(true);
       } catch (e) {
         console.error(e);
         showToast('خطا در ارتباط با سرور');
@@ -806,7 +826,11 @@
         renderDates();
       } catch (e) {
         console.error(e);
-        showToast('خطا در بارگذاری پنل مدیریت');
+        if (!adminLoaded) {
+          const box = document.getElementById('adminRequests');
+          if (box) box.innerHTML = '<div class="empty"><div class="icon">⚠️</div><p>بارگذاری اولیه ناموفق بود. دوباره همین بخش را باز کنید.</p></div>';
+        }
+        showToast('بارگذاری اولیه مدیریت ناموفق بود؛ دوباره تلاش کنید.');
       }
     }
 
@@ -940,8 +964,11 @@
     document.getElementById('trackPhone').addEventListener('keydown', e => { if (e.key === 'Enter') trackStatus(); });
     document.getElementById('adminPass').addEventListener('keydown', e => { if (e.key === 'Enter') loginAdmin(); });
 
-    // شروع
+    // شروع: اول رابط کاربری را با داده‌های محلی بالا می‌آوریم تا بار اول خالی نماند؛
+    // سپس اطلاعات واقعی را در پس‌زمینه همگام می‌کنیم.
+    renderDates();
     loadData(true);
+
   </script>
 
 </body>
