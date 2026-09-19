@@ -506,11 +506,11 @@
     }
 
     function getAdminToken() {
-      return sessionStorage.getItem('moddat_admin_token') || '';
+      return sessionStorage.getItem('moddat_admin') === '1' ? '1' : '';
     }
 
     function clearAdminSession() {
-      sessionStorage.removeItem('moddat_admin_token');
+      sessionStorage.removeItem('moddat_admin');
       adminLoaded = false;
     }
 
@@ -743,8 +743,8 @@
       setButtonLoading(btn, true, 'در حال ورود...');
       try {
         const result = await apiPost({ action: 'loginAdmin', password }, true);
-        if (!result.success || !result.token) return showToast(result.message || 'ورود ناموفق بود.');
-        sessionStorage.setItem('moddat_admin_token', result.token);
+        if (!result.success) return showToast(result.message || 'ورود ناموفق بود.');
+        sessionStorage.setItem('moddat_admin', '1');
         document.getElementById('adminPass').value = '';
         await showAdminPanel(true);
       } catch (e) {
@@ -824,7 +824,7 @@
       const box = document.getElementById('adminRequests');
       if (showLoader && box) box.innerHTML = '<div class="loading">در حال بارگذاری...</div>';
       try {
-        const data = await apiGet('admin', { token });
+        const data = await apiGet('admin');
         if (handleUnauthorized(data)) return;
         if (!data.success) throw new Error(data.message || 'خطا');
         sessions = Array.isArray(data.sessions) ? data.sessions : sessions;
@@ -848,7 +848,7 @@
       const btn = btnEl;
       setButtonLoading(btn, true);
       try {
-        const result = await apiPost({ action: 'updateRequest', id, status, token: getAdminToken() });
+        const result = await apiPost({ action: 'updateRequest', id, status });
         if (handleUnauthorized(result)) return;
         if (!result.success) return showToast(result.message || 'خطا');
 
@@ -872,7 +872,7 @@
       const btn = btnEl;
       setButtonLoading(btn, true);
       try {
-        const result = await apiPost({ action: 'deleteRequest', id, token: getAdminToken() });
+        const result = await apiPost({ action: 'deleteRequest', id });
         if (handleUnauthorized(result)) return;
         if (!result.success) return showToast(result.message || 'خطا');
         requests = requests.filter(r => String(r.id) !== String(id));
@@ -908,7 +908,7 @@
       const btn = btnEl;
       setButtonLoading(btn, true);
       try {
-        const result = await apiPost({ action: 'deleteSession', id, token: getAdminToken() });
+        const result = await apiPost({ action: 'deleteSession', id });
         if (handleUnauthorized(result)) return;
         if (!result.success) return showToast(result.message || 'خطا');
         sessions = sessions.filter(s => String(s.id) !== String(id));
@@ -932,7 +932,7 @@
       const btn = document.querySelector('#view-admin .card:last-child .btn-primary');
       setButtonLoading(btn, true, 'در حال افزودن...');
       try {
-        const result = await apiPost({ action: 'addSession', date, day, occasion, token: getAdminToken() });
+        const result = await apiPost({ action: 'addSession', date, day, occasion });
         if (handleUnauthorized(result)) return;
         if (!result.success) return showToast(result.message || 'خطا');
         if (result.session) sessions.push(result.session);
