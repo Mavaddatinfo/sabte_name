@@ -1856,30 +1856,35 @@
         )
         .forEach(item => {
 
-          item.addEventListener(
-            "click",
-            event => {
+          const checkbox =
+            item.querySelector(
+              "input"
+            );
 
-              const checkbox =
-                item.querySelector(
-                  "input"
-                );
-
-              if (
-                event.target !==
-                checkbox
-              ) {
-
-                checkbox.checked =
-                  !checkbox.checked;
-
-              }
-
+          // همگام‌سازی رنگ با وضعیت تیک (حتی وقتی تیک برداشته می‌شود)
+          checkbox.addEventListener(
+            "change",
+            () => {
               item.classList.toggle(
                 "selected",
                 checkbox.checked
               );
+            }
+          );
 
+          item.addEventListener(
+            "click",
+            event => {
+              if (
+                event.target !==
+                checkbox
+              ) {
+                checkbox.checked =
+                  !checkbox.checked;
+                checkbox.dispatchEvent(
+                  new Event("change")
+                );
+              }
             }
           );
 
