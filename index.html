@@ -415,15 +415,16 @@
   <script>
     // ==================== تنظیمات ====================
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyuWbXB8u89xEmmGpy1yBvJQWq_uenNZJ0W2xiElAvDkSOC8ibKUz4ERBayIY1W-E0I/exec";
+    const API_TIMEOUT_MS = 12000;
+    const FORM_REFRESH_MS = 15000;
 
-    // ==================== داده‌های اولیه (فقط برای نمایش تا وقتی شیت لود شود) ====================
     const INITIAL_SESSIONS = [
       { id: 1,  date: "۱۴۰۵/۰۶/۲۹", day: "یکشنبه", occasion: "ولادت امام حسن عسکری (ع)", status: "آزاد", count: 0 },
       { id: 2,  date: "۱۴۰۵/۰۷/۰۵", day: "یکشنبه", occasion: "ندارد", status: "آزاد", count: 0 },
       { id: 3,  date: "۱۴۰۵/۰۷/۱۲", day: "یکشنبه", occasion: "ندارد", status: "آزاد", count: 0 },
       { id: 4,  date: "۱۴۰۵/۰۷/۱۹", day: "یکشنبه", occasion: "ندارد", status: "آزاد", count: 0 },
       { id: 5,  date: "۱۴۰۵/۰۷/۲۶", day: "یکشنبه", occasion: "ندارد", status: "آزاد", count: 0 },
-      { id: 6,  date: "۱۴۰۵/۰۸/۰۲", day: "شنبه",   occasion: "شهادت حضرت زهرا به روایت اول", status: "آزاد", count: 0 },
+      { id: 6,  date: "۱۴۰۵/۰۸/۰۲", day: "شنبه", occasion: "شهادت حضرت زهرا به روایت اول", status: "آزاد", count: 0 },
       { id: 7,  date: "۱۴۰۵/۰۸/۱۰", day: "یکشنبه", occasion: "ندارد", status: "آزاد", count: 0 },
       { id: 8,  date: "۱۴۰۵/۰۸/۱۷", day: "یکشنبه", occasion: "ندارد", status: "آزاد", count: 0 },
       { id: 9,  date: "۱۴۰۵/۰۸/۲۴", day: "یکشنبه", occasion: "شهادت حضرت زهرا (ع)", status: "آزاد", count: 0 },
@@ -447,19 +448,24 @@
 
     let sessions = [];
     let requests = [];
+    let currentAdminFilter = 'all';
+    let lastFormRefresh = 0;
+    let adminLoaded = false;
+    const inFlightGets = new Map();
 
     // ==================== ابزارها ====================
     function showToast(msg) {
       const t = document.getElementById('toast');
-      t.textContent = msg;
+      t.textContent = String(msg || '');
       t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), 3500);
+      clearTimeout(showToast._timer);
+      showToast._timer = setTimeout(() => t.classList.remove('show'), 3200);
     }
 
     function setButtonLoading(btn, isLoading, loadingText) {
       if (!btn) return;
       if (isLoading) {
-        btn.dataset.originalText = btn.textContent;
+        if (!btn.dataset.originalText) btn.dataset.originalText = btn.textContent;
         btn.classList.add('loading');
         btn.disabled = true;
         if (loadingText) btn.textContent = loadingText;
@@ -473,6 +479,12 @@
       }
     }
 
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>'"]/g, ch => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+      }[ch]));
+    }
+
     function toEnglishDigits(str) {
       return String(str).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
     }
@@ -482,160 +494,167 @@
     }
 
     function normalizePhone(phone) {
-      let p = toEnglishDigits(String(phone || "")).replace(/\D/g, "");
-      if (p.length === 10 && p.startsWith("9")) p = "0" + p;
+      let p = toEnglishDigits(String(phone || '')).replace(/\D/g, '');
+      if (p.length === 10 && p.startsWith('9')) p = '0' + p;
       return p;
     }
 
     function isValidMobile(phone) {
-      const p = normalizePhone(phone);
-      return /^09\d{9}$/.test(p);
+      return /^09\d{9}$/.test(normalizePhone(phone));
     }
 
-    // ==================== ارتباط با Apps Script ====================
-    async function apiGet() {
-      if (SCRIPT_URL.includes("PASTE_YOUR")) {
-        return { success: true, sessions: INITIAL_SESSIONS, requests: [] };
-      }
-      try {
-        // جلوگیری از کش مرورگر (علت خطای بار دوم پیگیری)
-        const url = SCRIPT_URL + (SCRIPT_URL.includes('?') ? '&' : '?') + '_t=' + Date.now();
-        const res = await fetch(url, { cache: 'no-store' });
-        const text = await res.text();
-        return JSON.parse(text);
-      } catch (err) {
-        console.error(err);
-        return { success: false, sessions: INITIAL_SESSIONS, requests: [] };
-      }
+    function getAdminToken() {
+      return sessionStorage.getItem('moddat_admin_token') || '';
     }
 
-    async function apiPost(data) {
-      if (SCRIPT_URL.includes("PASTE_YOUR")) {
-        showToast("لطفاً ابتدا لینک Web App را در کد قرار دهید.");
-        return { success: false };
-      }
+    function clearAdminSession() {
+      sessionStorage.removeItem('moddat_admin_token');
+      adminLoaded = false;
+    }
+
+    async function fetchJson(url, options = {}) {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
       try {
-        const res = await fetch(SCRIPT_URL, {
-          method: "POST",
-          // text/plain جلوگیری از preflight CORS که در Apps Script مشکل‌ساز است
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify(data)
-        });
+        const res = await fetch(url, { ...options, signal: controller.signal, cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
         const text = await res.text();
         try {
           return JSON.parse(text);
-        } catch (parseErr) {
-          console.error("JSON parse error:", text);
-          // اگر سرور کار کرده ولی پاسخ JSON نبود، موفقیت فرض می‌کنیم
-          return { success: true, message: "انجام شد" };
+        } catch (_) {
+          throw new Error('پاسخ نامعتبر از سرور دریافت شد.');
         }
-      } catch (err) {
-        console.error(err);
-        return { success: false, message: "خطا در ارتباط با سرور" };
+      } finally {
+        clearTimeout(timeout);
       }
     }
 
-    // ==================== بارگذاری اولیه ====================
-    async function loadData() {
+    async function apiGet(view = 'all', params = {}) {
+      if (SCRIPT_URL.includes('PASTE_YOUR')) {
+        return { success: true, sessions: INITIAL_SESSIONS, requests: [] };
+      }
+      const q = new URLSearchParams({ view, _t: String(Date.now()), ...params });
+      const url = SCRIPT_URL + '?' + q.toString();
+      const key = view + '|' + JSON.stringify(params);
+      if (inFlightGets.has(key)) return inFlightGets.get(key);
+      const promise = fetchJson(url).finally(() => inFlightGets.delete(key));
+      inFlightGets.set(key, promise);
+      return promise;
+    }
+
+    async function apiPost(data) {
+      if (SCRIPT_URL.includes('PASTE_YOUR')) {
+        return { success: false, message: 'لینک Web App تنظیم نشده است.' };
+      }
+      return fetchJson(SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(data)
+      });
+    }
+
+    function handleUnauthorized(result) {
+      if (result && result.unauthorized) {
+        clearAdminSession();
+        document.getElementById('adminLogin').style.display = 'block';
+        document.getElementById('adminPanel').style.display = 'none';
+        showToast('نشست مدیریت منقضی شده؛ دوباره وارد شوید.');
+        return true;
+      }
+      return false;
+    }
+
+    // ==================== بارگذاری فرم ====================
+    async function loadData(force = false) {
+      if (!force && sessions.length && Date.now() - lastFormRefresh < FORM_REFRESH_MS) {
+        renderDates();
+        return;
+      }
       try {
-        const data = await apiGet();
-        if (data.success) {
-          sessions = data.sessions || INITIAL_SESSIONS;
-          requests = data.requests || [];
-        } else {
-          sessions = INITIAL_SESSIONS;
-          requests = [];
-        }
+        const data = await apiGet('sessions');
+        if (!data.success) throw new Error(data.message || 'خطا در دریافت تاریخ‌ها');
+        sessions = Array.isArray(data.sessions) ? data.sessions : INITIAL_SESSIONS;
+        lastFormRefresh = Date.now();
       } catch (e) {
         console.error(e);
-        sessions = INITIAL_SESSIONS;
-        requests = [];
+        if (!sessions.length) sessions = INITIAL_SESSIONS;
+        showToast('دریافت اطلاعات با مشکل مواجه شد؛ اطلاعات قبلی نمایش داده می‌شود.');
       }
       renderDates();
     }
 
-    // ==================== رندر تاریخ‌های فرم (فقط آزاد) ====================
     function renderDates() {
       const box = document.getElementById('datesList');
-      box.innerHTML = '';
+      const selectedBefore = new Set(Array.from(document.querySelectorAll('input[name="dates"]:checked')).map(cb => String(cb.value)));
+      const visible = sessions.filter(s => (parseInt(s.count, 10) || 0) < 2 && s.status !== 'بسته شده');
 
-      // فقط تاریخ‌هایی که ظرفیت دارند
-      const visible = sessions.filter(s => {
-        if (s.count >= 2) return false;
-        if (s.status === "بسته شده") return false;
-        return true;
-      });
-
-      if (visible.length === 0) {
+      if (!visible.length) {
         box.innerHTML = '<div class="empty"><div class="icon">📅</div><p>در حال حاضر تاریخ آزادی برای ثبت‌نام وجود ندارد.</p></div>';
         return;
       }
 
-      visible.forEach(s => {
-        const item = document.createElement('div');
-        item.className = 'date-item';
-        item.innerHTML = `
-          <input type="checkbox" name="dates" value="${s.id}" />
-          <div class="date-info">
-            <div class="main">${s.day} ${s.date}</div>
-            <div class="occ">${s.occasion === 'ندارد' ? '—' : s.occasion}</div>
-            <span class="badge badge-free">آزاد (${toPersianDigits(s.count || 0)}/۲)</span>
-          </div>
-        `;
-        item.addEventListener('click', (e) => {
-          if (e.target.tagName !== 'INPUT') {
-            const cb = item.querySelector('input');
-            cb.checked = !cb.checked;
-          }
-          item.classList.toggle('selected', item.querySelector('input').checked);
+      box.innerHTML = visible.map(s => {
+        const id = String(s.id);
+        const checked = selectedBefore.has(id);
+        return `
+          <div class="date-item ${checked ? 'selected' : ''}" data-session-id="${escapeHtml(id)}">
+            <input type="checkbox" name="dates" value="${escapeHtml(id)}" ${checked ? 'checked' : ''} />
+            <div class="date-info">
+              <div class="main">${escapeHtml(s.day)} ${escapeHtml(s.date)}</div>
+              <div class="occ">${s.occasion === 'ندارد' ? '—' : escapeHtml(s.occasion)}</div>
+              <span class="badge badge-free">آزاد (${toPersianDigits(parseInt(s.count, 10) || 0)}/۲)</span>
+            </div>
+          </div>`;
+      }).join('');
+
+      box.querySelectorAll('.date-item').forEach(item => {
+        item.addEventListener('click', e => {
+          const cb = item.querySelector('input');
+          if (e.target !== cb) cb.checked = !cb.checked;
+          item.classList.toggle('selected', cb.checked);
         });
-        box.appendChild(item);
       });
     }
 
     // ==================== ارسال فرم ====================
     document.getElementById('baniForm').addEventListener('submit', async function(e) {
       e.preventDefault();
-
       const fullName = document.getElementById('fullName').value.trim();
       const phone = document.getElementById('phone').value.trim();
       const notes = document.getElementById('notes').value.trim();
       const confirmed = document.getElementById('confirmCheck').checked;
-      const selected = Array.from(document.querySelectorAll('input[name="dates"]:checked')).map(cb => parseInt(cb.value));
+      const selected = Array.from(document.querySelectorAll('input[name="dates"]:checked')).map(cb => String(cb.value));
 
       if (!fullName) return showToast('نام و نام خانوادگی را وارد کنید.');
       if (!isValidMobile(phone)) return showToast('شماره موبایل معتبر نیست (باید با ۰۹ شروع شود و ۱۱ رقم باشد).');
-      if (selected.length === 0) return showToast('حداقل یک تاریخ انتخاب کنید.');
+      if (!selected.length) return showToast('حداقل یک تاریخ انتخاب کنید.');
       if (!confirmed) return showToast('صحت اطلاعات را تأیید کنید.');
 
-      const selectedDates = selected.map(id => {
-        const s = sessions.find(x => x.id == id);
-        return { id: s.id, date: s.date, day: s.day, occasion: s.occasion };
-      });
+      const selectedDates = selected.map(id => sessions.find(x => String(x.id) === id)).filter(Boolean).map(s => ({
+        id: s.id, date: s.date, day: s.day, occasion: s.occasion
+      }));
+      if (selectedDates.length !== selected.length) return showToast('یکی از تاریخ‌ها تغییر کرده است؛ دوباره انتخاب کنید.');
 
       const submitBtn = document.getElementById('submitBtn');
       setButtonLoading(submitBtn, true, 'در حال ثبت...');
-
       try {
         const result = await apiPost({
-          action: "submit",
+          action: 'submit',
           fullName,
           phone: normalizePhone(phone),
-          baniType: "بانی هیئت",
+          baniType: 'بانی هیئت',
           notes,
           selectedDates
         });
+        if (!result.success) return showToast(result.message || 'خطا در ثبت درخواست');
 
-        if (result.success) {
-          document.getElementById('formCard').style.display = 'none';
-          document.getElementById('successBox').style.display = 'block';
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-          loadData();
-        } else {
-          showToast(result.message || 'خطا در ثبت درخواست');
-        }
+        document.getElementById('formCard').style.display = 'none';
+        document.getElementById('successBox').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        loadData(true);
       } catch (err) {
-        showToast('خطا در ارتباط با سرور');
+        console.error(err);
+        showToast(err.name === 'AbortError' ? 'پاسخ سرور طول کشید؛ دوباره تلاش کنید.' : 'خطا در ارتباط با سرور');
       } finally {
         setButtonLoading(submitBtn, false);
       }
@@ -648,187 +667,191 @@
       renderDates();
     }
 
-    // ==================== پیگیری وضعیت ====================
+    // ==================== پیگیری ====================
     async function trackStatus() {
       const phone = normalizePhone(document.getElementById('trackPhone').value.trim());
-      if (!isValidMobile(phone)) {
-        showToast('شماره موبایل معتبر نیست.');
-        return;
-      }
+      if (!isValidMobile(phone)) return showToast('شماره موبایل معتبر نیست.');
 
       const btn = document.querySelector('#view-track .btn-primary');
       const box = document.getElementById('trackResult');
       setButtonLoading(btn, true, 'در حال جستجو...');
       box.innerHTML = '<div class="loading">در حال دریافت اطلاعات...</div>';
-
       try {
-        const data = await apiGet();
-        const myReqs = (data.requests || []).filter(r => normalizePhone(r.phone) === phone);
-
-        if (myReqs.length === 0) {
+        const data = await apiGet('track', { phone });
+        if (!data.success) throw new Error(data.message || 'خطا');
+        const myReqs = Array.isArray(data.requests) ? data.requests : [];
+        if (!myReqs.length) {
           box.innerHTML = '<div class="empty"><div class="icon">📭</div><p>درخواستی با این شماره یافت نشد.</p></div>';
         } else {
-          box.innerHTML = myReqs.map(r => {
-            const dates = (r.selectedDates || []).map(d => `${d.day || ''} ${d.date || ''}`).join('، ');
+          box.innerHTML = myReqs.slice().reverse().map(r => {
+            const dates = (r.selectedDates || []).map(d => `${escapeHtml(d.day || '')} ${escapeHtml(d.date || '')}`).join('، ');
             let statusClass = 'badge-pending';
             if (r.status === 'تأیید شده') statusClass = 'badge-confirmed';
             if (r.status === 'رد شده') statusClass = 'badge-full';
-            return `
-              <div class="track-item">
-                <div><strong>${r.fullName}</strong> — ${r.baniType || 'بانی هیئت'}</div>
-                <div style="font-size:0.9rem;margin:6px 0;">تاریخ‌ها: ${dates}</div>
-                <div>وضعیت: <span class="badge ${statusClass}">${r.status}</span></div>
-                <div style="font-size:0.8rem;color:var(--gray-600);margin-top:4px;">ثبت شده در: ${r.timestamp}</div>
-              </div>
-            `;
+            return `<div class="track-item">
+              <div><strong>${escapeHtml(r.fullName)}</strong> — ${escapeHtml(r.baniType || 'بانی هیئت')}</div>
+              <div style="font-size:0.9rem;margin:6px 0;">تاریخ‌ها: ${dates}</div>
+              <div>وضعیت: <span class="badge ${statusClass}">${escapeHtml(r.status)}</span></div>
+              <div style="font-size:0.8rem;color:var(--gray-600);margin-top:4px;">ثبت شده در: ${escapeHtml(r.timestamp)}</div>
+            </div>`;
           }).join('');
         }
       } catch (err) {
+        console.error(err);
+        box.innerHTML = '';
         showToast('خطا در دریافت اطلاعات');
       } finally {
         setButtonLoading(btn, false);
       }
     }
 
-    // ==================== پنل مدیریت ====================
-    function loginAdmin() {
+    // ==================== مدیریت ====================
+    async function loginAdmin() {
+      const password = document.getElementById('adminPass').value;
+      if (!password) return showToast('رمز عبور را وارد کنید.');
       const btn = document.querySelector('#adminLogin .btn-primary');
-      if (document.getElementById('adminPass').value === 'Mavaddatinfo1405') {
-        setButtonLoading(btn, true, 'در حال ورود...');
-        setTimeout(() => {
-          sessionStorage.setItem('moddat_admin', '1');
-          showAdminPanel();
-          setButtonLoading(btn, false);
-        }, 300);
-      } else {
-        showToast('رمز عبور اشتباه است.');
+      setButtonLoading(btn, true, 'در حال ورود...');
+      try {
+        const result = await apiPost({ action: 'loginAdmin', password });
+        if (!result.success || !result.token) return showToast(result.message || 'ورود ناموفق بود.');
+        sessionStorage.setItem('moddat_admin_token', result.token);
+        document.getElementById('adminPass').value = '';
+        showAdminPanel(true);
+      } catch (e) {
+        console.error(e);
+        showToast('خطا در ارتباط با سرور');
+      } finally {
+        setButtonLoading(btn, false);
       }
     }
 
     function logoutAdmin() {
-      sessionStorage.removeItem('moddat_admin');
+      clearAdminSession();
+      requests = [];
       document.getElementById('adminLogin').style.display = 'block';
       document.getElementById('adminPanel').style.display = 'none';
       showView('form');
     }
 
-    function showAdminPanel() {
+    async function showAdminPanel(forceLoad = false) {
       document.getElementById('adminLogin').style.display = 'none';
       document.getElementById('adminPanel').style.display = 'block';
-      loadAdminRequests('all');
-      renderAdminDates();
+      if (!adminLoaded || forceLoad) {
+        await refreshAdminData(true);
+      } else {
+        renderAdminRequestsList(currentAdminFilter);
+        renderAdminDates();
+      }
     }
 
-    function renderAdminRequestsList(filter) {
+    function renderAdminRequestsList(filter = currentAdminFilter) {
+      currentAdminFilter = filter || 'all';
       const box = document.getElementById('adminRequests');
-      let list = filter === 'all' ? requests : requests.filter(r => r.status === filter);
+      let list = currentAdminFilter === 'all' ? requests : requests.filter(r => r.status === currentAdminFilter);
       list = list.slice().reverse();
 
-      if (list.length === 0) {
+      if (!list.length) {
         box.innerHTML = '<div class="empty"><div class="icon">📭</div><p>درخواستی یافت نشد.</p></div>';
         return;
       }
 
       box.innerHTML = list.map(r => {
-        const datesHtml = (r.selectedDates || []).map(d => `<li>${d.day || ''} ${d.date || ''} — ${(!d.occasion || d.occasion === 'ندارد') ? '—' : d.occasion}</li>`).join('');
+        const datesHtml = (r.selectedDates || []).map(d => `<li>${escapeHtml(d.day || '')} ${escapeHtml(d.date || '')} — ${(!d.occasion || d.occasion === 'ندارد') ? '—' : escapeHtml(d.occasion)}</li>`).join('');
         let statusClass = 'badge-pending';
         if (r.status === 'تأیید شده') statusClass = 'badge-confirmed';
         if (r.status === 'رد شده') statusClass = 'badge-full';
-
-        return `
-          <div class="request-card">
-            <div class="meta">
-              <strong>#${r.id}</strong> | ${r.timestamp} |
-              <span class="badge ${statusClass}">${r.status}</span>
-            </div>
-            <div><strong>${r.fullName}</strong> — ${normalizePhone(r.phone)}</div>
-            <div style="font-size:0.9rem;margin:4px 0;">نوع بانی: ${r.baniType || 'بانی هیئت'}</div>
-            ${r.notes ? `<div style="font-size:0.85rem;color:var(--gray-600);">توضیحات: ${r.notes}</div>` : ''}
-            <ul style="margin:8px 0 8px 16px;font-size:0.9rem;">${datesHtml}</ul>
-            <div class="admin-actions">
-              ${r.status === 'در انتظار تأیید' ? `
-                <button class="btn btn-primary btn-sm" onclick="updateReq('${r.id}','تأیید شده', this)">✅ تأیید</button>
-                <button class="btn btn-danger btn-sm" onclick="updateReq('${r.id}','رد شده', this)">❌ رد</button>
-              ` : ''}
-              ${r.status === 'تأیید شده' ? `
-                <button class="btn btn-secondary btn-sm" onclick="updateReq('${r.id}','رد شده', this)">لغو تأیید</button>
-              ` : ''}
-              <button class="btn btn-secondary btn-sm" onclick="deleteReq('${r.id}', this)">🗑 حذف</button>
-            </div>
+        return `<div class="request-card" data-request-id="${escapeHtml(r.id)}">
+          <div class="meta"><strong>#${escapeHtml(r.id)}</strong> | ${escapeHtml(r.timestamp)} | <span class="badge ${statusClass}">${escapeHtml(r.status)}</span></div>
+          <div><strong>${escapeHtml(r.fullName)}</strong> — ${escapeHtml(normalizePhone(r.phone))}</div>
+          <div style="font-size:0.9rem;margin:4px 0;">نوع بانی: ${escapeHtml(r.baniType || 'بانی هیئت')}</div>
+          ${r.notes ? `<div style="font-size:0.85rem;color:var(--gray-600);">توضیحات: ${escapeHtml(r.notes)}</div>` : ''}
+          <ul style="margin:8px 0 8px 16px;font-size:0.9rem;">${datesHtml}</ul>
+          <div class="admin-actions">
+            ${r.status === 'در انتظار تأیید' ? `<button type="button" class="btn btn-primary btn-sm" onclick="updateReq('${escapeHtml(r.id)}','تأیید شده', this)">✅ تأیید</button><button type="button" class="btn btn-danger btn-sm" onclick="updateReq('${escapeHtml(r.id)}','رد شده', this)">❌ رد</button>` : ''}
+            ${r.status === 'تأیید شده' ? `<button type="button" class="btn btn-secondary btn-sm" onclick="updateReq('${escapeHtml(r.id)}','رد شده', this)">لغو تأیید</button>` : ''}
+            <button type="button" class="btn btn-secondary btn-sm" onclick="deleteReq('${escapeHtml(r.id)}', this)">🗑 حذف</button>
           </div>
-        `;
+        </div>`;
       }).join('');
     }
 
     async function loadAdminRequests(filter) {
-      try {
-        const data = await apiGet();
-        if (data && data.success) {
-          requests = data.requests || [];
-          sessions = data.sessions || sessions;
-        }
-        renderAdminRequestsList(filter || 'all');
-      } catch (e) {
-        console.error(e);
-        showToast('خطا در بارگذاری درخواست‌ها');
+      currentAdminFilter = filter || 'all';
+      if (adminLoaded) {
+        renderAdminRequestsList(currentAdminFilter);
+        return;
       }
+      await refreshAdminData(true);
     }
 
-    async function refreshAdminLists() {
-      const box = document.getElementById('adminRequests');
-      if (box) {
-        box.innerHTML = '<div class="loading">در حال به‌روزرسانی لیست...</div>';
+    async function refreshAdminData(showLoader = false) {
+      const token = getAdminToken();
+      if (!token) {
+        document.getElementById('adminLogin').style.display = 'block';
+        document.getElementById('adminPanel').style.display = 'none';
+        return;
       }
-      await new Promise(r => setTimeout(r, 150));
+      const box = document.getElementById('adminRequests');
+      if (showLoader && box) box.innerHTML = '<div class="loading">در حال بارگذاری...</div>';
       try {
-        const data = await apiGet();
-        if (data && data.success) {
-          sessions = data.sessions || sessions;
-          requests = data.requests || [];
-        }
-        renderAdminRequestsList('all');
+        const data = await apiGet('admin', { token });
+        if (handleUnauthorized(data)) return;
+        if (!data.success) throw new Error(data.message || 'خطا');
+        sessions = Array.isArray(data.sessions) ? data.sessions : sessions;
+        requests = Array.isArray(data.requests) ? data.requests : [];
+        adminLoaded = true;
+        lastFormRefresh = Date.now();
+        renderAdminRequestsList(currentAdminFilter);
         renderAdminDates();
         renderDates();
       } catch (e) {
         console.error(e);
-        showToast('خطا در به‌روزرسانی لیست');
+        showToast('خطا در بارگذاری پنل مدیریت');
       }
     }
 
     async function updateReq(id, status, btnEl) {
-      const btn = btnEl || (window.event && window.event.target);
+      const btn = btnEl;
       setButtonLoading(btn, true);
       try {
-        const result = await apiPost({ action: "updateRequest", id, status });
-        if (result && result.success !== false) {
-          showToast(status === 'تأیید شده' ? 'تأیید شد.' : (status === 'رد شده' ? 'رد شد.' : 'وضعیت به‌روز شد.'));
-        } else {
-          showToast((result && result.message) || 'خطا');
-        }
+        const result = await apiPost({ action: 'updateRequest', id, status, token: getAdminToken() });
+        if (handleUnauthorized(result)) return;
+        if (!result.success) return showToast(result.message || 'خطا');
+
+        const req = requests.find(r => String(r.id) === String(id));
+        if (req) req.status = status;
+        if (Array.isArray(result.sessions)) sessions = result.sessions;
+        renderAdminRequestsList(currentAdminFilter);
+        renderAdminDates();
+        renderDates();
+        showToast(status === 'تأیید شده' ? 'تأیید شد.' : (status === 'رد شده' ? 'رد شد.' : 'وضعیت به‌روز شد.'));
       } catch (e) {
+        console.error(e);
         showToast('خطا در ارتباط');
       } finally {
         setButtonLoading(btn, false);
-        await refreshAdminLists();
       }
     }
 
     async function deleteReq(id, btnEl) {
       if (!confirm('آیا از حذف این درخواست مطمئن هستید؟')) return;
-      const btn = btnEl || (window.event && window.event.target);
+      const btn = btnEl;
       setButtonLoading(btn, true);
       try {
-        const result = await apiPost({ action: "deleteRequest", id });
-        if (result && result.success !== false) {
-          showToast('حذف شد.');
-        } else {
-          showToast((result && result.message) || 'خطا');
-        }
+        const result = await apiPost({ action: 'deleteRequest', id, token: getAdminToken() });
+        if (handleUnauthorized(result)) return;
+        if (!result.success) return showToast(result.message || 'خطا');
+        requests = requests.filter(r => String(r.id) !== String(id));
+        if (Array.isArray(result.sessions)) sessions = result.sessions;
+        renderAdminRequestsList(currentAdminFilter);
+        renderAdminDates();
+        renderDates();
+        showToast('حذف شد.');
       } catch (e) {
+        console.error(e);
         showToast('خطا در ارتباط');
       } finally {
         setButtonLoading(btn, false);
-        await refreshAdminLists();
       }
     }
 
@@ -836,39 +859,33 @@
       const tbody = document.getElementById('adminDatesBody');
       tbody.innerHTML = sessions.map(s => {
         let statusClass = 'badge-free';
-        if (s.count >= 2 || s.status === 'بسته شده') statusClass = 'badge-closed';
-
-        return `
-          <tr>
-            <td>${s.date}</td>
-            <td>${s.day}</td>
-            <td>${s.occasion === 'ندارد' ? '—' : s.occasion}</td>
-            <td><span class="badge ${statusClass}">${s.status}</span></td>
-            <td>${toPersianDigits(s.count || 0)}/۲</td>
-            <td>
-              <button class="btn btn-danger btn-sm" onclick="deleteSession(${s.id}, this)">حذف</button>
-            </td>
-          </tr>
-        `;
+        if ((parseInt(s.count, 10) || 0) >= 2 || s.status === 'بسته شده') statusClass = 'badge-closed';
+        return `<tr>
+          <td>${escapeHtml(s.date)}</td><td>${escapeHtml(s.day)}</td><td>${s.occasion === 'ندارد' ? '—' : escapeHtml(s.occasion)}</td>
+          <td><span class="badge ${statusClass}">${escapeHtml(s.status)}</span></td>
+          <td>${toPersianDigits(parseInt(s.count, 10) || 0)}/۲</td>
+          <td><button type="button" class="btn btn-danger btn-sm" onclick="deleteSession('${escapeHtml(s.id)}', this)">حذف</button></td>
+        </tr>`;
       }).join('');
     }
 
     async function deleteSession(id, btnEl) {
       if (!confirm('آیا از حذف این تاریخ مطمئن هستید؟')) return;
-      const btn = btnEl || (window.event && window.event.target);
+      const btn = btnEl;
       setButtonLoading(btn, true);
       try {
-        const result = await apiPost({ action: "deleteSession", id });
-        if (result && result.success !== false) {
-          showToast('تاریخ حذف شد.');
-        } else {
-          showToast((result && result.message) || 'خطا');
-        }
+        const result = await apiPost({ action: 'deleteSession', id, token: getAdminToken() });
+        if (handleUnauthorized(result)) return;
+        if (!result.success) return showToast(result.message || 'خطا');
+        sessions = sessions.filter(s => String(s.id) !== String(id));
+        renderAdminDates();
+        renderDates();
+        showToast('تاریخ حذف شد.');
       } catch (e) {
+        console.error(e);
         showToast('خطا در ارتباط');
       } finally {
         setButtonLoading(btn, false);
-        await refreshAdminLists();
       }
     }
 
@@ -876,29 +893,26 @@
       const date = document.getElementById('newDate').value.trim();
       const day = document.getElementById('newDay').value;
       const occasion = document.getElementById('newOccasion').value.trim() || 'ندارد';
-
       if (!date) return showToast('تاریخ را وارد کنید.');
 
       const btn = document.querySelector('#view-admin .card:last-child .btn-primary');
       setButtonLoading(btn, true, 'در حال افزودن...');
       try {
-        const result = await apiPost({
-          action: "addSession",
-          date, day, occasion
-        });
-
-        if (result && result.success !== false) {
-          showToast('تاریخ جدید اضافه شد.');
-          document.getElementById('newDate').value = '';
-          document.getElementById('newOccasion').value = '';
-        } else {
-          showToast((result && result.message) || 'خطا');
-        }
+        const result = await apiPost({ action: 'addSession', date, day, occasion, token: getAdminToken() });
+        if (handleUnauthorized(result)) return;
+        if (!result.success) return showToast(result.message || 'خطا');
+        if (result.session) sessions.push(result.session);
+        sessions.sort((a, b) => Number(a.id) - Number(b.id));
+        document.getElementById('newDate').value = '';
+        document.getElementById('newOccasion').value = '';
+        renderAdminDates();
+        renderDates();
+        showToast('تاریخ جدید اضافه شد.');
       } catch (e) {
+        console.error(e);
         showToast('خطا در ارتباط');
       } finally {
         setButtonLoading(btn, false);
-        await refreshAdminLists();
       }
     }
 
@@ -907,32 +921,28 @@
       document.getElementById('view-form').style.display = view === 'form' ? 'block' : 'none';
       document.getElementById('view-track').style.display = view === 'track' ? 'block' : 'none';
       document.getElementById('view-admin').style.display = view === 'admin' ? 'block' : 'none';
-
-      document.querySelectorAll('#navTabs button').forEach(b => {
-        b.classList.toggle('active', b.dataset.view === view);
-      });
-
-      if (view === 'form') loadData();
+      document.querySelectorAll('#navTabs button').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+      if (view === 'form') loadData(false);
     }
 
-    document.querySelectorAll('#navTabs button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        showView(btn.dataset.view);
-      });
-    });
+    document.querySelectorAll('#navTabs button').forEach(btn => btn.addEventListener('click', () => showView(btn.dataset.view)));
 
     function openAdmin() {
       showView('admin');
-      if (sessionStorage.getItem('moddat_admin') === '1') {
-        showAdminPanel();
+      if (getAdminToken()) {
+        showAdminPanel(false);
       } else {
         document.getElementById('adminLogin').style.display = 'block';
         document.getElementById('adminPanel').style.display = 'none';
       }
     }
 
+    document.getElementById('trackPhone').addEventListener('keydown', e => { if (e.key === 'Enter') trackStatus(); });
+    document.getElementById('adminPass').addEventListener('keydown', e => { if (e.key === 'Enter') loginAdmin(); });
+
     // شروع
-    loadData();
+    loadData(true);
   </script>
+
 </body>
 </html>
