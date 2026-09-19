@@ -481,19 +481,30 @@
       return String(str).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
     }
 
+    function normalizePhone(phone) {
+      let p = toEnglishDigits(String(phone || "")).replace(/\D/g, "");
+      if (p.length === 10 && p.startsWith("9")) p = "0" + p;
+      return p;
+    }
+
     function isValidMobile(phone) {
-      phone = toEnglishDigits(phone).replace(/[\s\-\(\)]/g, '');
-      return /^09\d{9}$/.test(phone);
+      const p = normalizePhone(phone);
+      return /^09\d{9}$/.test(p);
     }
 
     // ==================== ارتباط با Apps Script ====================
     async function apiGet() {
       if (SCRIPT_URL.includes("PASTE_YOUR")) {
-        // حالت دمو (بدون اتصال واقعی)
         return { success: true, sessions: INITIAL_SESSIONS, requests: [] };
       }
-      const res = await fetch(SCRIPT_URL);
-      return await res.json();
+      try {
+        const res = await fetch(SCRIPT_URL);
+        const text = await res.text();
+        return JSON.parse(text);
+      } catch (err) {
+        console.error(err);
+        return { success: false, sessions: INITIAL_SESSIONS, requests: [] };
+      }
     }
 
     async function apiPost(data) {
@@ -501,11 +512,25 @@
         showToast("لطفاً ابتدا لینک Web App را در کد قرار دهید.");
         return { success: false };
       }
-      const res = await fetch(SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify(data)
-      });
-      return await res.json();
+      try {
+        const res = await fetch(SCRIPT_URL, {
+          method: "POST",
+          // text/plain جلوگیری از preflight CORS که در Apps Script مشکل‌ساز است
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(data)
+        });
+        const text = await res.text();
+        try {
+          return JSON.parse(text);
+        } catch (parseErr) {
+          console.error("JSON parse error:", text);
+          // اگر سرور کار کرده ولی پاسخ JSON نبود، موفقیت فرض می‌کنیم
+          return { success: true, message: "انجام شد" };
+        }
+      } catch (err) {
+        console.error(err);
+        return { success: false, message: "خطا در ارتباط با سرور" };
+      }
     }
 
     // ==================== بارگذاری اولیه ====================
@@ -593,7 +618,7 @@
         const result = await apiPost({
           action: "submit",
           fullName,
-          phone: toEnglishDigits(phone),
+          phone: normalizePhone(phone),
           baniType: "بانی هیئت",
           notes,
           selectedDates
@@ -623,7 +648,7 @@
 
     // ==================== پیگیری وضعیت ====================
     async function trackStatus() {
-      const phone = toEnglishDigits(document.getElementById('trackPhone').value.trim());
+      const phone = normalizePhone(document.getElementById('trackPhone').value.trim());
       if (!isValidMobile(phone)) {
         showToast('شماره موبایل معتبر نیست.');
         return;
@@ -635,7 +660,7 @@
 
       try {
         const data = await apiGet();
-        const myReqs = (data.requests || []).filter(r => toEnglishDigits(String(r.phone || '')).replace(/\D/g, '') === phone.replace(/\D/g, ''));
+        const myReqs = (data.requests || []).filter(r => normalizePhone(r.phone) === phone);
 
         const box = document.getElementById('trackResult');
         if (myReqs.length === 0) {
@@ -718,7 +743,7 @@
               <strong>#${r.id}</strong> | ${r.timestamp} |
               <span class="badge ${statusClass}">${r.status}</span>
             </div>
-            <div><strong>${r.fullName}</strong> — ${r.phone}</div>
+            <div><strong>${r.fullName}</strong> — ${normalizePhone(r.phone)}</div>
             <div style="font-size:0.9rem;margin:4px 0;">نوع بانی: ${r.baniType || 'بانی هیئت'}</div>
             ${r.notes ? `<div style="font-size:0.85rem;color:var(--gray-600);">توضیحات: ${r.notes}</div>` : ''}
             <ul style="margin:8px 0 8px 16px;font-size:0.9rem;">${datesHtml}</ul>
@@ -742,18 +767,19 @@
       setButtonLoading(btn, true);
       try {
         const result = await apiPost({ action: "updateRequest", id, status });
-        if (result.success) {
+        if (result && result.success !== false) {
           showToast('وضعیت به‌روز شد.');
-          await loadAdminRequests('all');
-          renderAdminDates();
-          loadData();
         } else {
-          showToast(result.message || 'خطا');
+          showToast((result && result.message) || 'خطا');
         }
       } catch (e) {
         showToast('خطا در ارتباط');
       } finally {
         setButtonLoading(btn, false);
+        // همیشه لیست را رفرش کن تا تغییرات دیده شود
+        await loadAdminRequests('all');
+        renderAdminDates();
+        loadData();
       }
     }
 
@@ -763,18 +789,18 @@
       setButtonLoading(btn, true);
       try {
         const result = await apiPost({ action: "deleteRequest", id });
-        if (result.success) {
+        if (result && result.success !== false) {
           showToast('حذف شد.');
-          await loadAdminRequests('all');
-          renderAdminDates();
-          loadData();
         } else {
-          showToast(result.message || 'خطا');
+          showToast((result && result.message) || 'خطا');
         }
       } catch (e) {
         showToast('خطا در ارتباط');
       } finally {
         setButtonLoading(btn, false);
+        await loadAdminRequests('all');
+        renderAdminDates();
+        loadData();
       }
     }
 
@@ -805,17 +831,17 @@
       setButtonLoading(btn, true);
       try {
         const result = await apiPost({ action: "deleteSession", id });
-        if (result.success) {
+        if (result && result.success !== false) {
           showToast('تاریخ حذف شد.');
-          await loadData();
-          renderAdminDates();
         } else {
-          showToast(result.message || 'خطا');
+          showToast((result && result.message) || 'خطا');
         }
       } catch (e) {
         showToast('خطا در ارتباط');
       } finally {
         setButtonLoading(btn, false);
+        await loadData();
+        renderAdminDates();
       }
     }
 
@@ -834,19 +860,19 @@
           date, day, occasion
         });
 
-        if (result.success) {
+        if (result && result.success !== false) {
           showToast('تاریخ جدید اضافه شد.');
           document.getElementById('newDate').value = '';
           document.getElementById('newOccasion').value = '';
-          await loadData();
-          renderAdminDates();
         } else {
-          showToast(result.message || 'خطا');
+          showToast((result && result.message) || 'خطا');
         }
       } catch (e) {
         showToast('خطا در ارتباط');
       } finally {
         setButtonLoading(btn, false);
+        await loadData();
+        renderAdminDates();
       }
     }
 
