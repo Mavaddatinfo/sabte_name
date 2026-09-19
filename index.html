@@ -762,13 +762,35 @@
       }).join('');
     }
 
+    async function refreshAdminLists() {
+      const box = document.getElementById('adminRequests');
+      if (box) {
+        box.innerHTML = '<div class="loading">در حال به‌روزرسانی لیست...</div>';
+      }
+      // کمی صبر تا گوگل شیت تغییرات را ثبت کند
+      await new Promise(r => setTimeout(r, 700));
+      try {
+        const data = await apiGet();
+        if (data && data.success) {
+          sessions = data.sessions || sessions;
+          requests = data.requests || [];
+        }
+        await loadAdminRequests('all');
+        renderAdminDates();
+        renderDates();
+      } catch (e) {
+        console.error(e);
+        showToast('خطا در به‌روزرسانی لیست');
+      }
+    }
+
     async function updateReq(id, status, btnEl) {
       const btn = btnEl || (window.event && window.event.target);
       setButtonLoading(btn, true);
       try {
         const result = await apiPost({ action: "updateRequest", id, status });
         if (result && result.success !== false) {
-          showToast('وضعیت به‌روز شد.');
+          showToast(status === 'تأیید شده' ? 'تأیید شد.' : (status === 'رد شده' ? 'رد شد.' : 'وضعیت به‌روز شد.'));
         } else {
           showToast((result && result.message) || 'خطا');
         }
@@ -776,10 +798,7 @@
         showToast('خطا در ارتباط');
       } finally {
         setButtonLoading(btn, false);
-        // همیشه لیست را رفرش کن تا تغییرات دیده شود
-        await loadAdminRequests('all');
-        renderAdminDates();
-        loadData();
+        await refreshAdminLists();
       }
     }
 
@@ -798,9 +817,7 @@
         showToast('خطا در ارتباط');
       } finally {
         setButtonLoading(btn, false);
-        await loadAdminRequests('all');
-        renderAdminDates();
-        loadData();
+        await refreshAdminLists();
       }
     }
 
@@ -840,8 +857,7 @@
         showToast('خطا در ارتباط');
       } finally {
         setButtonLoading(btn, false);
-        await loadData();
-        renderAdminDates();
+        await refreshAdminLists();
       }
     }
 
@@ -871,8 +887,7 @@
         showToast('خطا در ارتباط');
       } finally {
         setButtonLoading(btn, false);
-        await loadData();
-        renderAdminDates();
+        await refreshAdminLists();
       }
     }
 
