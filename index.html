@@ -533,7 +533,7 @@
 
     // درخواست‌های GET امن هستند که در صورت خطای موقت/بیدار شدن Apps Script دوباره امتحان شوند.
     // POST عمداً retry خودکار ندارد تا ثبت درخواست دوباره انجام نشود.
-    async function fetchGetWithRetry(url, attempts = 3) {
+    async function fetchGetWithRetry(url, attempts = 5) {
       let lastError;
       for (let i = 0; i < attempts; i++) {
         try {
@@ -541,7 +541,7 @@
         } catch (err) {
           lastError = err;
           if (i < attempts - 1) {
-            await new Promise(resolve => setTimeout(resolve, 450 * (i + 1)));
+            await new Promise(resolve => setTimeout(resolve, 600 * i + 700));
           }
         }
       }
@@ -561,15 +561,25 @@
       return promise;
     }
 
-    async function apiPost(data) {
+    async function apiPost(data, retrySafe = false) {
       if (SCRIPT_URL.includes('PASTE_YOUR')) {
         return { success: false, message: 'لینک Web App تنظیم نشده است.' };
       }
-      return fetchJson(SCRIPT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(data)
-      });
+      const attempts = retrySafe ? 2 : 1;
+      let lastError;
+      for (let i = 0; i < attempts; i++) {
+        try {
+          return await fetchJson(SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(data)
+          });
+        } catch (err) {
+          lastError = err;
+          if (i < attempts - 1) await new Promise(resolve => setTimeout(resolve, 800));
+        }
+      }
+      throw lastError || new Error('خطا در ارتباط با سرور');
     }
 
     function handleUnauthorized(result) {
@@ -598,7 +608,7 @@
       } catch (e) {
         console.error(e);
         if (!sessions.length) sessions = INITIAL_SESSIONS;
-        showToast('دریافت اطلاعات با مشکل مواجه شد؛ اطلاعات قبلی نمایش داده می‌شود.');
+        console.warn('دریافت اولیه تاریخ‌ها ناموفق بود؛ اطلاعات محلی حفظ شد.');
       }
       renderDates();
     }
@@ -732,7 +742,7 @@
       const btn = document.querySelector('#adminLogin .btn-primary');
       setButtonLoading(btn, true, 'در حال ورود...');
       try {
-        const result = await apiPost({ action: 'loginAdmin', password });
+        const result = await apiPost({ action: 'loginAdmin', password }, true);
         if (!result.success || !result.token) return showToast(result.message || 'ورود ناموفق بود.');
         sessionStorage.setItem('moddat_admin_token', result.token);
         document.getElementById('adminPass').value = '';
