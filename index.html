@@ -264,7 +264,6 @@
       transition: 0.15s;
     }
 
-    .date-item:hover,
     .date-item.selected {
       border-color: var(--green);
       background: var(--green-light);
@@ -1039,6 +1038,7 @@
                   <th>مناسبت</th>
                   <th>وضعیت</th>
                   <th>تعداد</th>
+                  <th>بانیان</th>
                   <th>عملیات</th>
                 </tr>
 
@@ -1861,7 +1861,6 @@
               "input"
             );
 
-          // همگام‌سازی رنگ با وضعیت تیک (حتی وقتی تیک برداشته می‌شود)
           checkbox.addEventListener(
             "change",
             () => {
@@ -3259,6 +3258,12 @@
                       10
                     ) || 0
                   )}/۲
+                </td>
+
+                <td>
+                  ${escapeHtml(
+                    session.banis || "—"
+                  )}
                 </td>
 
                 <td>
