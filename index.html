@@ -2516,10 +2516,15 @@
         );
 
 
+      // فقط درخواست‌های واقعی دارای شناسه را نمایش بده
+      const validRequests = requests.filter(
+        request => String(request?.id || "").trim() !== ""
+      );
+
       let list =
         currentAdminFilter === "all"
-          ? requests
-          : requests.filter(
+          ? validRequests
+          : validRequests.filter(
               request =>
                 request.status ===
                 currentAdminFilter
@@ -2910,7 +2915,10 @@
           Array.isArray(
             data.requests
           )
-            ? data.requests
+            ? data.requests.filter(
+                request =>
+                  String(request?.id || "").trim() !== ""
+              )
             : [];
 
 
@@ -2968,6 +2976,12 @@
       status,
       button
     ) {
+
+      id = String(id || "").trim();
+      if (!id) {
+        showToast("شناسه درخواست نامعتبر است.");
+        return;
+      }
 
       setButtonLoading(
         button,
@@ -3078,6 +3092,12 @@
       id,
       button
     ) {
+
+      id = String(id || "").trim();
+      if (!id) {
+        showToast("شناسه درخواست نامعتبر است.");
+        return;
+      }
 
       if (
         !confirm(
